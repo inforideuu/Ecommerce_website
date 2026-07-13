@@ -1,5 +1,10 @@
 import os
+import ssl
 from pathlib import Path
+
+# Enable PyMySQL for serverless SSL database connection
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,6 +78,9 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD', 'root'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'ssl': ssl.create_default_context() if os.getenv('DB_SSL', 'False').lower() == 'true' else None
+        }
     }
 }
 

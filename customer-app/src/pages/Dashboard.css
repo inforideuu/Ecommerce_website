@@ -548,3 +548,28 @@
   0%, 100% { opacity: 1; }
   50% { opacity: .6; }
 }
+
+@media (max-width: 768px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr !important;
+    gap: 24px;
+  }
+  .profile-details-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  .dashboard-content-panel {
+    padding: 20px !important;
+  }
+  .stats-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .vip-help-desk-chat-drawer {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .address-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

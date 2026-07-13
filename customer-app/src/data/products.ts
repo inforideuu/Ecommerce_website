@@ -23,6 +23,8 @@ export interface Product {
   occasion: string;
   brand: string;
   material: string;
+  categoryGroup?: string;
+  subcategory?: string;
 }
 
 export const PRODUCTS: Product[] = [

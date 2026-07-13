@@ -79,7 +79,9 @@ export const Search: React.FC = () => {
         return selectedCategories.some(cat => {
           if (cat === 'New Arrivals') return p.tag === 'New' || p.trending;
           if (cat === 'Sale') return p.discount > 0 || p.tag === 'Sale';
-          return p.category.toLowerCase() === cat.toLowerCase();
+          return p.category.toLowerCase() === cat.toLowerCase() ||
+                 (p.categoryGroup && p.categoryGroup.toLowerCase() === cat.toLowerCase()) ||
+                 (p.subcategory && p.subcategory.toLowerCase() === cat.toLowerCase());
         });
       });
     }
