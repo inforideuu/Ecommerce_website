@@ -24,7 +24,7 @@ export const ProductDetails: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:8000/api/products/${id}`)
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/products/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Product not found');
         return res.json();
@@ -35,12 +35,12 @@ export const ProductDetails: React.FC = () => {
         if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
         
         // Fetch reviews
-        fetch(`http://localhost:8000/api/products/${id}/reviews`)
+        fetch(`https://ecommerce-website-hvuy.onrender.com/api/products/${id}/reviews`)
           .then(res => res.json())
           .then(revs => { if (Array.isArray(revs)) setReviewsList(revs); })
           .catch(err => console.error(err));
 
-        return fetch(`http://localhost:8000/api/products?category=${data.category}`);
+        return fetch(`https://ecommerce-website-hvuy.onrender.com/api/products?category=${data.category}`);
       })
       .then(res => res ? res.json() : [])
       .then(allCategoryProducts => {

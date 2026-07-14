@@ -23,12 +23,12 @@ export const Products: React.FC = () => {
   const activeBrands = dbBrands.length > 0 ? dbBrands.map(b => b.name) : BRANDS;
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/categories')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
       .then(res => res.json())
       .then(data => setDbCategories(data))
       .catch(err => console.error(err));
 
-    fetch('http://localhost:8000/api/admin/brands')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -111,7 +111,7 @@ export const Products: React.FC = () => {
   });
 
   const fetchProducts = () => {
-    fetch('http://localhost:8000/api/admin/products')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch admin products:', err));
@@ -268,7 +268,7 @@ export const Products: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      fetch(`http://localhost:8000/api/admin/products/${id}`, {
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/products/${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -443,8 +443,8 @@ export const Products: React.FC = () => {
     };
 
     const targetUrl = editingProduct 
-      ? `http://localhost:8000/api/admin/products/${editingProduct.id}`
-      : 'http://localhost:8000/api/admin/products';
+      ? `https://ecommerce-website-hvuy.onrender.com/api/admin/products/${editingProduct.id}`
+      : 'https://ecommerce-website-hvuy.onrender.com/api/admin/products';
 
     const targetMethod = editingProduct ? 'PUT' : 'POST';
 

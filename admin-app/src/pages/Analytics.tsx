@@ -5,7 +5,7 @@ export const Analytics: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/admin/analytics')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/analytics')
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error(err));

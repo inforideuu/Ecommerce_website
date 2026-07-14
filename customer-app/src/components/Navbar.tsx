@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
     if (!customer || !customer.email) return;
 
     const fetchNotifications = () => {
-      fetch(`http://localhost:8000/api/orders?email=${customer.email}`)
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${customer.email}`)
         .then(res => res.json())
         .then(orders => {
           if (Array.isArray(orders)) {
@@ -154,14 +154,14 @@ export const Navbar: React.FC = () => {
   const [dbCategories, setDbCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch products for navbar:', err));
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/categories')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
       .then(res => res.json())
       .then(data => setDbCategories(data))
       .catch(err => console.error('Failed to fetch categories for navbar:', err));

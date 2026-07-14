@@ -16,7 +16,7 @@ export const Orders: React.FC = () => {
   useEffect(() => {
     if (!activeOrder) return;
     const fetchChat = () => {
-      fetch(`http://localhost:8000/api/support-messages?orderId=${activeOrder.id}`)
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${activeOrder.id}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) setChatMessages(data);
@@ -29,7 +29,7 @@ export const Orders: React.FC = () => {
   }, [activeOrder]);
 
   const fetchOrders = () => {
-    fetch('http://localhost:8000/api/admin/orders')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/orders')
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(err => console.error('Failed to fetch orders:', err));
@@ -43,7 +43,7 @@ export const Orders: React.FC = () => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    fetch(`http://localhost:8000/api/admin/orders/${orderId}`, {
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, paymentStatus: order.paymentStatus, trackingNumber: order.trackingNumber })
@@ -68,7 +68,7 @@ export const Orders: React.FC = () => {
       returnRequest = { ...order.returnRequest, status: 'Refund Completed' };
     }
 
-    fetch(`http://localhost:8000/api/admin/orders/${orderId}`, {
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -95,7 +95,7 @@ export const Orders: React.FC = () => {
     const adminMsg = chatInput;
     setChatInput('');
 
-    fetch('http://localhost:8000/api/support-messages', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -106,7 +106,7 @@ export const Orders: React.FC = () => {
     })
       .then(res => res.json())
       .then(() => {
-        fetch(`http://localhost:8000/api/support-messages?orderId=${activeOrder.id}`)
+        fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${activeOrder.id}`)
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) setChatMessages(data);
@@ -122,7 +122,7 @@ export const Orders: React.FC = () => {
     const updatedReturnRequest = { ...order.returnRequest, status: returnStatus };
     const payStatus = returnStatus === 'Refund Completed' ? 'refunded' : order.paymentStatus;
 
-    fetch(`http://localhost:8000/api/admin/orders/${orderId}`, {
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ returnRequest: updatedReturnRequest, paymentStatus: payStatus })
@@ -144,7 +144,7 @@ export const Orders: React.FC = () => {
 
     const updatedExchangeRequest = { ...order.exchangeRequest, status: exchangeStatus };
 
-    fetch(`http://localhost:8000/api/admin/orders/${orderId}`, {
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ exchangeRequest: updatedExchangeRequest })
@@ -324,7 +324,7 @@ export const Orders: React.FC = () => {
                   </div>
                   <button
                     onClick={() => {
-                      fetch(`http://localhost:8000/api/admin/orders/${activeOrder.id}`, {
+                      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${activeOrder.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

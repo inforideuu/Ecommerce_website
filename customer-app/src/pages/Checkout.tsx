@@ -109,7 +109,7 @@ export const Checkout: React.FC = () => {
   const [taxRateSetting, setTaxRateSetting] = useState(18); // Default to 18%
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/admin/settings')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
       .then(res => res.json())
       .then(data => {
         if (data && (data.tax_rate || data.taxRate)) {
@@ -130,7 +130,7 @@ export const Checkout: React.FC = () => {
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return;
     setCouponError('');
-    fetch('http://localhost:8000/api/admin/coupons')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -191,7 +191,7 @@ export const Checkout: React.FC = () => {
       }))
     };
 
-    fetch('http://localhost:8000/api/orders', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
@@ -210,13 +210,13 @@ export const Checkout: React.FC = () => {
             localStorage.setItem('customer_supercoins', nextCoins.toString());
 
             // Save to backend database
-            fetch(`http://localhost:8000/api/admin/customers`)
+            fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers`)
               .then(res => res.json())
               .then(custs => {
                 if (Array.isArray(custs)) {
                   const match = custs.find((c: any) => c.email.toLowerCase() === shippingForm.email.toLowerCase());
                   if (match) {
-                    fetch(`http://localhost:8000/api/admin/customers/${match.id}`, {
+                    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers/${match.id}`, {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({

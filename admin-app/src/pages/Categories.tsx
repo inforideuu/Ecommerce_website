@@ -47,7 +47,7 @@ export const Categories: React.FC = () => {
   });
 
   const fetchCategories = () => {
-    fetch('http://localhost:8000/api/categories')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Failed to fetch categories:', err));
@@ -144,7 +144,7 @@ export const Categories: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Delete category? This action removes catalog structures.')) {
-      fetch(`http://localhost:8000/api/categories?id=${id}`, {
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/categories?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -206,7 +206,7 @@ export const Categories: React.FC = () => {
       image: formFields.thumbnail
     };
 
-    fetch('http://localhost:8000/api/categories', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

@@ -32,7 +32,7 @@ export const Customers: React.FC = () => {
     e.preventDefault();
     if (!selectedCustomer) return;
 
-    fetch(`http://localhost:8000/api/admin/customers/${selectedCustomer.id}`, {
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers/${selectedCustomer.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(customerForm)
@@ -47,7 +47,7 @@ export const Customers: React.FC = () => {
   };
 
   const fetchCustomers = () => {
-    fetch('http://localhost:8000/api/admin/customers')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/customers')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch customers:', err));
@@ -129,7 +129,7 @@ export const Customers: React.FC = () => {
                     {/* <button
                       onClick={() => {
                         if (window.confirm(`Upgrade ${c.name} to VIP Gold Status?`)) {
-                          fetch(`http://localhost:8000/api/admin/customers/${c.id}`, {
+                          fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers/${c.id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ points: 10000, ordersCount: 10, status: c.status })

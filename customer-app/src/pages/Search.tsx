@@ -30,7 +30,7 @@ export const Search: React.FC = () => {
 
   // Fetch products & brands
   useEffect(() => {
-    fetch('http://localhost:8000/api/products')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/products')
       .then(res => res.json())
       .then(data => {
         setProducts(data);
@@ -38,7 +38,7 @@ export const Search: React.FC = () => {
       })
       .catch(err => console.error('Failed to fetch products:', err));
 
-    fetch('http://localhost:8000/api/admin/brands')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

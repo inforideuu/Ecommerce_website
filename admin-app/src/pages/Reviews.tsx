@@ -23,7 +23,7 @@ export const Reviews: React.FC = () => {
   });
 
   const fetchReviews = () => {
-    fetch('http://localhost:8000/api/admin/reviews')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews')
       .then(res => res.json())
       .then(data => {
         const mapped = data.map((r: any) => ({
@@ -58,7 +58,7 @@ export const Reviews: React.FC = () => {
       status: status
     };
 
-    fetch('http://localhost:8000/api/admin/reviews', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -73,7 +73,7 @@ export const Reviews: React.FC = () => {
 
   const deleteReview = (id: string) => {
     if (window.confirm('Are you sure you want to delete this review?')) {
-      fetch(`http://localhost:8000/api/admin/reviews?id=${id}`, {
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/reviews?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -93,7 +93,7 @@ export const Reviews: React.FC = () => {
       status: formFields.status
     };
 
-    fetch('http://localhost:8000/api/admin/reviews', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

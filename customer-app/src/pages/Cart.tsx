@@ -15,7 +15,7 @@ export const Cart: React.FC = () => {
   const [dbCoupons, setDbCoupons] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/admin/coupons')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDbCoupons(data);

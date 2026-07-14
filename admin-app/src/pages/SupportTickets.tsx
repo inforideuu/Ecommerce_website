@@ -15,7 +15,7 @@ export const SupportTickets: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchTickets = () => {
-    fetch('http://localhost:8000/api/support-tickets')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-tickets')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -34,7 +34,7 @@ export const SupportTickets: React.FC = () => {
   }, []);
 
   const handleUpdateStatus = (id: string, newStatus: string) => {
-    fetch('http://localhost:8000/api/support-tickets', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-tickets', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: newStatus })

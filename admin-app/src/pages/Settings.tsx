@@ -51,7 +51,7 @@ export const Settings: React.FC = () => {
     }
 
     // Fetch backend settings
-    fetch('http://localhost:8000/api/admin/settings')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
       .then(res => res.json())
       .then(data => {
         if (data && Object.keys(data).length > 0) {
@@ -93,7 +93,7 @@ export const Settings: React.FC = () => {
       flash_sale_image: generalForm.flashSaleImage
     };
 
-    fetch('http://localhost:8000/api/admin/settings', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

@@ -35,7 +35,7 @@ export const Topbar: React.FC = () => {
 
   React.useEffect(() => {
     const fetchActiveAlerts = () => {
-      fetch('http://localhost:8000/api/admin/orders')
+      fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/orders')
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -88,7 +88,7 @@ export const Topbar: React.FC = () => {
     };
 
     const fetchActiveMessages = () => {
-      fetch('http://localhost:8000/api/support-messages')
+      fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages')
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -135,7 +135,7 @@ export const Topbar: React.FC = () => {
     const target = messages.find(m => m.id === msgId);
     if (!target) return;
 
-    fetch('http://localhost:8000/api/support-messages', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -217,7 +217,7 @@ export const Topbar: React.FC = () => {
                           <button
                             onClick={() => {
                               if (window.confirm('Clear message history for this order?')) {
-                                fetch(`http://localhost:8000/api/support-messages?orderId=${msg.orderId}`, {
+                                fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${msg.orderId}`, {
                                   method: 'DELETE'
                                 })
                                   .then(() => {

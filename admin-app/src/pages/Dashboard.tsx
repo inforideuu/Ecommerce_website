@@ -10,17 +10,17 @@ export const Dashboard: React.FC = () => {
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/admin/products')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch admin products:', err));
 
-    fetch('http://localhost:8000/api/admin/orders')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/orders')
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(err => console.error('Failed to fetch admin orders:', err));
 
-    fetch('http://localhost:8000/api/admin/customers')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/customers')
       .then(res => res.json())
       .then(data => setCustomers(data))
       .catch(err => console.error('Failed to fetch admin customers:', err));

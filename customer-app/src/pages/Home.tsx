@@ -42,12 +42,12 @@ export const Home: React.FC = () => {
   const [dbCategories, setDbCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch products:', err));
 
-    fetch('http://localhost:8000/api/categories')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -58,7 +58,7 @@ export const Home: React.FC = () => {
       .catch(err => console.error('Failed to fetch categories:', err));
 
     // Fetch marketing and settings configurations
-    fetch('http://localhost:8000/api/admin/settings')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
       .then(res => res.json())
       .then(data => {
         if (data) {
@@ -75,7 +75,7 @@ export const Home: React.FC = () => {
       })
       .catch(err => console.error('Failed to load flash sale settings:', err));
 
-    fetch('http://localhost:8000/api/admin/brands')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -84,7 +84,7 @@ export const Home: React.FC = () => {
       })
       .catch(err => console.error('Failed to fetch brands list:', err));
 
-    fetch('http://localhost:8000/api/admin/reviews')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

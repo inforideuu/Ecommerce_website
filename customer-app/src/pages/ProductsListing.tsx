@@ -36,7 +36,7 @@ export const ProductsListing: React.FC = () => {
   // Fetch Products based on URL query
   useEffect(() => {
     setLoading(true);
-    const url = `http://localhost:8000/api/products?gender=${gender}&subcategory=${subcategory}`;
+    const url = `https://ecommerce-website-hvuy.onrender.com/api/products?gender=${gender}&subcategory=${subcategory}`;
     fetch(url)
       .then(res => res.json())
       .then(data => {

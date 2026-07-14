@@ -26,7 +26,7 @@ export const Coupons: React.FC = () => {
   });
 
   const fetchCoupons = () => {
-    fetch('http://localhost:8000/api/admin/coupons')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
       .then(res => res.json())
       .then(data => {
         const mapped = data.map((c: any) => ({
@@ -63,7 +63,7 @@ export const Coupons: React.FC = () => {
       usageCount: 0
     };
 
-    fetch('http://localhost:8000/api/admin/coupons', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -87,7 +87,7 @@ export const Coupons: React.FC = () => {
 
   const deleteCoupon = (id: string) => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
-      fetch(`http://localhost:8000/api/admin/coupons?id=${id}`, {
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/coupons?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())

@@ -28,7 +28,7 @@ export const Brands: React.FC = () => {
   const [brands, setBrands] = useState<BrandObject[]>([]);
 
   const fetchBrands = () => {
-    fetch('http://localhost:8000/api/admin/brands')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
       .then(res => res.json())
       .then(data => setBrands(data))
       .catch(err => console.error(err));
@@ -138,7 +138,7 @@ export const Brands: React.FC = () => {
   const handleDelete = (id: string) => {
     const target = brands.find(b => b.id === id);
     if (target && window.confirm(`Remove design house partnership with ${target.name}?`)) {
-      fetch(`http://localhost:8000/api/admin/brands?id=${id}`, {
+      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/brands?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -210,7 +210,7 @@ export const Brands: React.FC = () => {
       seoKeywords: formFields.seoKeywords
     };
 
-    fetch('http://localhost:8000/api/admin/brands', {
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

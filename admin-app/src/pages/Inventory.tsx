@@ -8,7 +8,7 @@ export const Inventory: React.FC = () => {
   const [selectedStockStatus, setSelectedStockStatus] = useState('');
 
   const fetchProducts = () => {
-    fetch('http://localhost:8000/api/admin/products')
+    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch inventory:', err));
@@ -25,7 +25,7 @@ export const Inventory: React.FC = () => {
     // Optimistic state update
     setProducts(products.map(p => p.id === id ? { ...p, stock: Math.max(0, newStock) } : p));
 
-    fetch(`http://localhost:8000/api/admin/products/${id}`, {
+    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/products/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...product, stock: Math.max(0, newStock) })
