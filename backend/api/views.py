@@ -671,7 +671,7 @@ def get_products(request):
             
     if subcategory:
         clean_sub = subcategory.replace('-', ' ').replace('/', ' ')
-        qs = qs.filter(
+        q_obj = (
             models.Q(subcategory__iexact=subcategory) | 
             models.Q(subcategory__iexact=clean_sub) |
             models.Q(subcategory__icontains=subcategory) |
@@ -679,6 +679,14 @@ def get_products(request):
             models.Q(name__icontains=subcategory) |
             models.Q(name__icontains=clean_sub)
         )
+        try:
+            cat_obj = Category.objects.filter(slug__iexact=subcategory).first()
+            if cat_obj:
+                q_obj |= models.Q(subcategory__iexact=cat_obj.name)
+                q_obj |= models.Q(subcategory__icontains=cat_obj.name)
+        except Exception:
+            pass
+        qs = qs.filter(q_obj)
         
     if trending == 'true':
         qs = qs.filter(trending=1)
