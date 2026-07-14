@@ -375,7 +375,7 @@ export const Orders: React.FC = () => {
                 <h4>Financial Settlement</h4>
                 <div className="action-button-list">
                   <button onClick={() => handlePaymentUpdate(activeOrder.id, 'paid')} className="btn-admin btn-admin-primary" disabled={activeOrder.paymentStatus === 'paid'}>
-                    Approve Payment
+                    Mark as Paid
                   </button>
                   <button onClick={() => handlePaymentUpdate(activeOrder.id, 'refunded')} className="btn-admin btn-admin-secondary text-rose" disabled={activeOrder.paymentStatus === 'refunded'}>
                     Issue Refund

@@ -340,9 +340,9 @@ def check_and_seed():
         if Category.objects.count() == 0:
             Category.objects.all().delete()
             categories_seed = [
-                {"id": "cat-1", "name": "Men", "parentCategory": "None", "slug": "men", "status": "active", "image": "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=100&q=80"},
-                {"id": "cat-2", "name": "Women", "parentCategory": "None", "slug": "women", "status": "active", "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=100&q=80"},
-                {"id": "cat-3", "name": "Kids", "parentCategory": "None", "slug": "kids", "status": "active", "image": "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=100&q=80"},
+                {"id": "cat-1", "name": "Men", "parentCategory": "None", "slug": "men", "status": "active", "image": "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&auto=format&fit=crop&q=80"},
+                {"id": "cat-2", "name": "Women", "parentCategory": "None", "slug": "women", "status": "active", "image": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&auto=format&fit=crop&q=80"},
+                {"id": "cat-3", "name": "Kids", "parentCategory": "None", "slug": "kids", "status": "active", "image": "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=800&auto=format&fit=crop&q=80"},
                 {"id": "gp-m1", "name": "Top Wear", "parentCategory": "cat-1", "slug": "top-wear", "status": "active"},
                 {"id": "gp-m2", "name": "Bottom Wear", "parentCategory": "cat-1", "slug": "bottom-wear", "status": "active"},
                 {"id": "gp-m3", "name": "Ethnic Wear", "parentCategory": "cat-1", "slug": "ethnic-wear", "status": "active"},
