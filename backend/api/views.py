@@ -661,31 +661,46 @@ def get_products(request):
     
     qs = Product.objects.filter(status='active')
     
+    from django.db.models.functions import Lower
+
     if gender:
-        qs = qs.filter(category__iexact=gender)
+        gender_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
+        db_gender = gender_map.get(gender.lower(), gender)
+        qs = qs.filter(category=db_gender)
     elif category:
         if category == 'Sale':
             qs = qs.filter(discount__gt=0)
         else:
-            qs = qs.filter(category=category)
+            cat_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
+            db_cat = cat_map.get(category.lower(), category)
+            qs = qs.filter(category=db_cat)
             
     if subcategory:
-        clean_sub = subcategory.replace('-', ' ').replace('/', ' ')
-        q_obj = (
-            models.Q(subcategory__iexact=subcategory) | 
-            models.Q(subcategory__iexact=clean_sub) |
-            models.Q(subcategory__icontains=subcategory) |
-            models.Q(subcategory__icontains=clean_sub) |
-            models.Q(name__icontains=subcategory) |
-            models.Q(name__icontains=clean_sub)
-        )
+        clean_sub = subcategory.replace('-', ' ').replace('/', ' ').lower()
+        sub_lower = subcategory.lower()
+        
+        resolved_name = None
         try:
-            cat_obj = Category.objects.filter(slug__iexact=subcategory).first()
+            cat_obj = Category.objects.annotate(slug_lower=Lower('slug')).filter(slug_lower=sub_lower).first()
             if cat_obj:
-                q_obj |= models.Q(subcategory__iexact=cat_obj.name)
-                q_obj |= models.Q(subcategory__icontains=cat_obj.name)
+                resolved_name = cat_obj.name.lower()
         except Exception:
             pass
+
+        qs = qs.annotate(subcategory_lower=Lower('subcategory'), name_lower=Lower('name'))
+        
+        q_obj = (
+            models.Q(subcategory_lower=sub_lower) | 
+            models.Q(subcategory_lower=clean_sub) |
+            models.Q(subcategory_lower__contains=sub_lower) |
+            models.Q(subcategory_lower__contains=clean_sub) |
+            models.Q(name_lower__contains=sub_lower) |
+            models.Q(name_lower__contains=clean_sub)
+        )
+        if resolved_name:
+            q_obj |= models.Q(subcategory_lower=resolved_name)
+            q_obj |= models.Q(subcategory_lower__contains=resolved_name)
+            
         qs = qs.filter(q_obj)
         
     if trending == 'true':
