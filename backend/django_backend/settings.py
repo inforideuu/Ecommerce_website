@@ -18,7 +18,7 @@ if env_file.exists():
             if line and not line.startswith('#'):
                 try:
                     key, val = line.split('=', 1)
-                    os.environ[key.strip()] = val.strip()
+                    os.environ.setdefault(key.strip(), val.strip())
                 except ValueError:
                     pass
 
