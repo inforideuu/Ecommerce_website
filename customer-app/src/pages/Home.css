@@ -302,9 +302,30 @@
 }
 
 .products-grid-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  overflow-x: auto;
   gap: 30px;
+  padding-bottom: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gold) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.products-grid-layout::-webkit-scrollbar {
+  height: 5px;
+}
+
+.products-grid-layout::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.products-grid-layout::-webkit-scrollbar-thumb {
+  background-color: var(--accent-gold);
+  border-radius: 4px;
+}
+
+.products-grid-layout > * {
+  flex: 0 0 280px;
 }
 
 /* Flash Sale Section */
