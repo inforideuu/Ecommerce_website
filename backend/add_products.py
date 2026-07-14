@@ -56,7 +56,7 @@ for sub in subcats:
         p = Product(
             id=p_id,
             name=f"Signature {sub.name} - Edition {i}",
-            category=sub.name, # Subcategory name
+            category=dept, # Department name (Men/Women/Kids)
             categoryGroup=dept, # Department name (Men/Women/Kids)
             subcategory=sub.name, # Subcategory name
             brand=random.choice(["Gucci", "Prada", "Armani", "Versace", "Louis Vuitton", "Chanel"]),
