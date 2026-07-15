@@ -55,8 +55,17 @@ export const Checkout: React.FC = () => {
   const [couponError, setCouponError] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
 
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+
   // Check login state on mount
   useEffect(() => {
+    const savedAddrs = localStorage.getItem('customer_addresses');
+    if (savedAddrs) {
+      try {
+        setSavedAddresses(JSON.parse(savedAddrs));
+      } catch (e) {}
+    }
+
     const savedUser = localStorage.getItem('customerUser');
     if (savedUser) {
       const parsed = JSON.parse(savedUser);
@@ -154,16 +163,67 @@ export const Checkout: React.FC = () => {
             setCouponDiscount(0);
             return;
           }
-          
-          let discountVal = 0;
-          if (match.type === 'percentage') {
-            discountVal = Math.round(cartSubtotal * (match.value / 100));
+          if (match.requiredSupercoins > 0) {
+            fetch(`${API_BASE_URL}/api/admin/customers`)
+              .then(res => res.json())
+              .then(customers => {
+                let currentCoins = 0;
+                if (Array.isArray(customers)) {
+                  const matchCustomer = customers.find((c: any) => c.email.toLowerCase() === shippingForm.email.toLowerCase());
+                  if (matchCustomer) {
+                    currentCoins = matchCustomer.points || 0;
+                    localStorage.setItem('customer_supercoins', currentCoins.toString());
+                  } else {
+                    const currentCoinsStr = localStorage.getItem('customer_supercoins') || '0';
+                    currentCoins = parseInt(currentCoinsStr, 10);
+                  }
+                }
+                
+                if (currentCoins < match.requiredSupercoins) {
+                  setCouponError(`Insufficient Super Coins. You need ${match.requiredSupercoins} Super Coins to apply this coupon. (You have ${currentCoins})`);
+                  setAppliedCoupon(null);
+                  setCouponDiscount(0);
+                  return;
+                }
+                
+                let discountVal = 0;
+                if (match.type === 'percentage') {
+                  discountVal = Math.round(cartSubtotal * (match.value / 100));
+                } else {
+                  discountVal = match.value;
+                }
+                setAppliedCoupon(match);
+                setCouponDiscount(discountVal);
+              })
+              .catch(err => {
+                console.error(err);
+                const currentCoinsStr = localStorage.getItem('customer_supercoins') || '0';
+                const currentCoins = parseInt(currentCoinsStr, 10);
+                if (currentCoins < match.requiredSupercoins) {
+                  setCouponError(`Insufficient Super Coins. You need ${match.requiredSupercoins} Super Coins to apply this coupon.`);
+                  setAppliedCoupon(null);
+                  setCouponDiscount(0);
+                  return;
+                }
+                let discountVal = 0;
+                if (match.type === 'percentage') {
+                  discountVal = Math.round(cartSubtotal * (match.value / 100));
+                } else {
+                  discountVal = match.value;
+                }
+                setAppliedCoupon(match);
+                setCouponDiscount(discountVal);
+              });
           } else {
-            discountVal = match.value;
+            let discountVal = 0;
+            if (match.type === 'percentage') {
+              discountVal = Math.round(cartSubtotal * (match.value / 100));
+            } else {
+              discountVal = match.value;
+            }
+            setAppliedCoupon(match);
+            setCouponDiscount(discountVal);
           }
-          
-          setAppliedCoupon(match);
-          setCouponDiscount(discountVal);
         }
       })
       .catch(err => {
@@ -229,6 +289,34 @@ export const Checkout: React.FC = () => {
                   }
                 }
               });
+          }
+
+          if (shippingForm.saveAddress) {
+            const savedStr = localStorage.getItem('customer_addresses') || '[]';
+            let currentAddrs = [];
+            try {
+              currentAddrs = JSON.parse(savedStr);
+            } catch(e) {}
+            
+            const fullAddressDetails = `${shippingForm.address}, ${shippingForm.city}, ${shippingForm.state}, ${shippingForm.postalCode}, ${shippingForm.country}`;
+            const exists = currentAddrs.some((a: any) => a.details.toLowerCase() === fullAddressDetails.toLowerCase());
+            
+            if (!exists) {
+              const newAddrObj = {
+                id: Date.now().toString(),
+                type: shippingForm.addressType.toUpperCase(),
+                name: `${shippingForm.firstName} ${shippingForm.lastName}`,
+                phone: shippingForm.phone,
+                street: shippingForm.address,
+                city: shippingForm.city,
+                state: shippingForm.state,
+                pincode: shippingForm.postalCode,
+                country: shippingForm.country,
+                details: fullAddressDetails
+              };
+              currentAddrs.push(newAddrObj);
+              localStorage.setItem('customer_addresses', JSON.stringify(currentAddrs));
+            }
           }
 
           setPlacedOrderId(orderId);
@@ -332,6 +420,70 @@ export const Checkout: React.FC = () => {
         <div className="checkout-layout">
           <form onSubmit={handleShippingSubmit} className="checkout-main-column glass-panel">
             <h2 className="serif-text">Shipping Address</h2>
+            
+            {savedAddresses.length > 0 && (
+              <div className="saved-addresses-selector" style={{ marginBottom: '20px', padding: '16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+                <h4 style={{ color: 'var(--accent-gold)', marginBottom: '10px', fontSize: '0.9rem' }}>Use Saved Address</h4>
+                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
+                  {savedAddresses.map(addr => (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      className="glass-panel"
+                      style={{
+                        padding: '12px',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-color)',
+                        textAlign: 'left',
+                        minWidth: '200px',
+                        cursor: 'pointer',
+                        background: 'rgba(255,255,255,0.01)',
+                        color: 'var(--text-primary)',
+                        fontSize: '0.8rem'
+                      }}
+                      onClick={() => {
+                        const nameParts = (addr.name || '').split(' ');
+                        const fName = nameParts[0] || '';
+                        const lName = nameParts.slice(1).join(' ') || '';
+                        
+                        let streetAddr = addr.details || '';
+                        let cityVal = '';
+                        let stateVal = '';
+                        let postVal = '';
+                        let countryVal = 'India';
+                        
+                        const parts = (addr.details || '').split(',').map((s: string) => s.trim());
+                        if (parts.length >= 4) {
+                          countryVal = parts.pop() || 'India';
+                          postVal = parts.pop() || '';
+                          stateVal = parts.pop() || '';
+                          cityVal = parts.pop() || '';
+                          streetAddr = parts.join(', ');
+                        }
+                        
+                        setShippingForm(prev => ({
+                          ...prev,
+                          firstName: fName,
+                          lastName: lName,
+                          phone: addr.phone || '',
+                          address: addr.street || streetAddr,
+                          city: addr.city || cityVal,
+                          state: addr.state || stateVal,
+                          postalCode: addr.pincode || postVal,
+                          country: addr.country || countryVal,
+                          addressType: (addr.type || 'home').toLowerCase()
+                        }));
+                      }}
+                    >
+                      <strong style={{ display: 'block', marginBottom: '4px', textTransform: 'uppercase', color: 'var(--accent-gold)', fontSize: '0.75rem' }}>{addr.type}</strong>
+                      <span style={{ display: 'block', fontWeight: 'bold' }}>{addr.name}</span>
+                      <span style={{ display: 'block', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{addr.street ? `${addr.street}, ${addr.city}, ${addr.state}, ${addr.pincode}, ${addr.country}` : addr.details}</span>
+                      <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: '4px' }}>{addr.phone}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="form-grid-2">
               <div className="input-group">
@@ -475,17 +627,7 @@ export const Checkout: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ margin: '20px 0' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={shippingForm.saveAddress}
-                  onChange={e => setShippingForm({ ...shippingForm, saveAddress: e.target.checked })}
-                  style={{ width: '16px', height: '16px' }}
-                />
-                Save this address for future orders
-              </label>
-            </div>
+
 
             <button type="submit" className="btn-premium btn-premium-primary w-full mt-4">
               Continue to Delivery Options

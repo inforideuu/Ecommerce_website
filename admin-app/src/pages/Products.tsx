@@ -172,7 +172,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       categoryGroup: '',
       subcategory: '',
       productType: '',
-      brand: BRANDS[0] || 'Gucci',
+      brand: activeBrands[0] || 'Gucci',
       price: 0,
       discountPrice: 0,
       costPrice: 0,
@@ -1017,6 +1017,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
                   <select className="form-control" value={formFields.fit} onChange={e => setFormFields({ ...formFields, fit: e.target.value })}>
                     <option>Regular Fit</option>
                     <option>Slim Fit</option>
+                    <option>Casual Fit</option>
                     <option>Oversized Fit</option>
                     <option>Tailored Fit</option>
                   </select>

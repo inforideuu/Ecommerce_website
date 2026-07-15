@@ -40,7 +40,7 @@ export const Analytics: React.FC = () => {
   // Dynamic Catalog Category Breakdown (Horizontal Bars)
   const categoryDist = stats && Array.isArray(stats.categoryDistribution) ? stats.categoryDistribution : [];
   const totalCatCount = categoryDist.reduce((acc: number, c: any) => acc + c.count, 0) || 1;
-  const sortedCats = [...categoryDist].sort((a, b) => b.count - a.count).slice(0, 3);
+  const sortedCats = [...categoryDist].sort((a, b) => b.count - a.count);
 
   return (
     <div className="admin-dashboard-page">

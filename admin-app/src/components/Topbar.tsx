@@ -48,6 +48,9 @@ export const Topbar: React.FC<TopbarProps> = ({ globalSearch, setGlobalSearch })
             const list: NotificationItem[] = [];
             let index = 1;
             
+            const savedRead = localStorage.getItem('admin_read_notifications');
+            const readList: string[] = savedRead ? JSON.parse(savedRead) : [];
+            
             data.forEach((order: any) => {
               let returnReq: any = null;
               if (order.returnRequest) {
@@ -64,26 +67,38 @@ export const Topbar: React.FC<TopbarProps> = ({ globalSearch, setGlobalSearch })
               }
               
               if (returnReq && returnReq.status === 'Return Requested') {
-                list.push({
-                  id: index++,
-                  text: `Return Requested: Order #${order.id}`,
-                  time: 'Active Alert',
-                  read: false
-                });
-              } else if (exchangeReq && exchangeReq.status === 'Exchange Requested') {
-                list.push({
-                  id: index++,
-                  text: `Size Exchange Requested: Order #${order.id}`,
-                  time: 'Active Alert',
-                  read: false
-                });
+                const key = `return-${order.id}`;
+                if (!readList.includes(key)) {
+                  list.push({
+                    id: index++,
+                    text: `Return Requested: Order #${order.id}`,
+                    time: 'Active Alert',
+                    read: false,
+                    alertKey: key
+                  } as any);
+                }
+              } else if (exchangeReq && (exchangeReq.status === 'Requested' || exchangeReq.status === 'Exchange Requested')) {
+                const key = `exchange-${order.id}`;
+                if (!readList.includes(key)) {
+                  list.push({
+                    id: index++,
+                    text: `Size Exchange Requested: Order #${order.id}`,
+                    time: 'Active Alert',
+                    read: false,
+                    alertKey: key
+                  } as any);
+                }
               } else if (order.status.toLowerCase() === 'pending' || order.status.toLowerCase() === 'pending payment' || order.status.toLowerCase() === 'confirmed') {
-                list.push({
-                  id: index++,
-                  text: `New order #${order.id} placed`,
-                  time: 'Pending Review',
-                  read: false
-                });
+                const key = `new-order-${order.id}`;
+                if (!readList.includes(key)) {
+                  list.push({
+                    id: index++,
+                    text: `New order #${order.id} placed`,
+                    time: 'Pending Review',
+                    read: false,
+                    alertKey: key
+                  } as any);
+                }
               }
             });
             
@@ -124,15 +139,32 @@ export const Topbar: React.FC<TopbarProps> = ({ globalSearch, setGlobalSearch })
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAllRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+    const keys = notifications.map(n => (n as any).alertKey).filter(Boolean);
+    const savedRead = localStorage.getItem('admin_read_notifications');
+    const readList: string[] = savedRead ? JSON.parse(savedRead) : [];
+    const nextRead = Array.from(new Set([...readList, ...keys]));
+    localStorage.setItem('admin_read_notifications', JSON.stringify(nextRead));
+    setNotifications([]);
   };
 
   const clearAllNotifications = () => {
+    const keys = notifications.map(n => (n as any).alertKey).filter(Boolean);
+    const savedRead = localStorage.getItem('admin_read_notifications');
+    const readList: string[] = savedRead ? JSON.parse(savedRead) : [];
+    const nextRead = Array.from(new Set([...readList, ...keys]));
+    localStorage.setItem('admin_read_notifications', JSON.stringify(nextRead));
     setNotifications([]);
   };
 
   const markItemRead = (id: number) => {
-    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+    const item = notifications.find(n => n.id === id);
+    if (item && (item as any).alertKey) {
+      const savedRead = localStorage.getItem('admin_read_notifications');
+      const readList: string[] = savedRead ? JSON.parse(savedRead) : [];
+      const nextRead = Array.from(new Set([...readList, (item as any).alertKey]));
+      localStorage.setItem('admin_read_notifications', JSON.stringify(nextRead));
+    }
+    setNotifications(notifications.filter(n => n.id !== id));
   };
 
   const handleReplySubmit = (e: React.FormEvent, msgId: number) => {

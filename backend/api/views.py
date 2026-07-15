@@ -1019,7 +1019,7 @@ def orders(request):
         qs = Order.objects.all()
         if email:
             qs = qs.filter(email=email)
-        qs = qs.order_by('-date')
+        qs = qs.order_by('-created_at')
         
         data = []
         for o in qs:
@@ -1051,7 +1051,8 @@ def orders(request):
                 "exchangeRequest": exch_req,
                 "reviews": revs,
                 "itemsCount": o.itemsCount,
-                "items": json.loads(o.items or "[]")
+                "items": json.loads(o.items or "[]"),
+                "createdAt": o.created_at.isoformat() if o.created_at else ""
             })
         return JsonResponse(data, safe=False)
         
@@ -1123,7 +1124,7 @@ def orders(request):
 
 def get_admin_orders(request):
     check_and_seed()
-    qs = Order.objects.all().order_by('-date')
+    qs = Order.objects.all().order_by('-created_at')
     data = []
     for o in qs:
         try:
@@ -1154,7 +1155,8 @@ def get_admin_orders(request):
             "exchangeRequest": exch_req,
             "reviews": revs,
             "itemsCount": o.itemsCount,
-            "items": json.loads(o.items or "[]")
+            "items": json.loads(o.items or "[]"),
+            "createdAt": o.created_at.isoformat() if o.created_at else ""
         })
     return JsonResponse(data, safe=False)
 
@@ -1220,17 +1222,28 @@ def modify_customer(request, customer_id):
         try:
             body = json.loads(request.body)
             c = Customer.objects.get(id=customer_id)
-            c.status = body.get('status', c.status)
-            c.points = int(body.get('points', c.points))
-            c.ordersCount = int(body.get('ordersCount', c.ordersCount))
-            if 'name' in body:
-                c.name = body.get('name')
-            if 'email' in body:
-                c.email = body.get('email')
-            if 'address' in body:
-                c.address = body.get('address')
+            
+            if 'status' in body and body['status'] is not None:
+                c.status = body['status']
+            if 'points' in body and body['points'] is not None:
+                try:
+                    c.points = int(body['points'])
+                except (ValueError, TypeError):
+                    pass
+            if 'ordersCount' in body and body['ordersCount'] is not None:
+                try:
+                    c.ordersCount = int(body['ordersCount'])
+                except (ValueError, TypeError):
+                    pass
+            if 'name' in body and body['name'] is not None:
+                c.name = body['name']
+            if 'address' in body and body['address'] is not None:
+                c.address = body['address']
+                
             c.save()
             return JsonResponse({"success": True})
+        except Customer.DoesNotExist:
+            return JsonResponse({"error": "Customer not found"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Method not allowed"}, status=405)

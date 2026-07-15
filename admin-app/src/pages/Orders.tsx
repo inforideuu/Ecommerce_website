@@ -94,6 +94,92 @@ export const Orders: React.FC<OrdersProps> = ({ globalSearch = '' }) => {
       .catch(err => console.error(err));
   };
 
+  const handlePrintInvoice = (order: any) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Pop-up blocked. Please allow pop-ups to print the invoice.');
+      return;
+    }
+    
+    const items = order.items || [];
+    const itemsHtml = items.map((item: any) => `
+      <tr>
+        <td>${item.name || 'Designer Wardrobe Item'}</td>
+        <td>${item.size || 'M'}</td>
+        <td>${item.quantity || item.qty || 1}</td>
+        <td>₹${item.price || 0}</td>
+        <td>₹${(item.price || 0) * (item.quantity || item.qty || 1)}</td>
+      </tr>
+    `).join('');
+
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>Invoice - ${order.id}</title>
+        <style>
+          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; padding: 40px; background: #fff; }
+          .invoice-container { max-width: 800px; margin: auto; border: 1px solid #eee; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); }
+          .invoice-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
+          .invoice-logo { font-size: 24px; font-weight: bold; font-family: 'Georgia', serif; letter-spacing: 2px; }
+          .invoice-title { font-size: 32px; font-weight: 300; text-transform: uppercase; }
+          .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 14px; }
+          .meta-grid h3 { margin-bottom: 8px; color: #555; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; }
+          .meta-grid p { margin: 4px 0; line-height: 1.4; }
+          .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+          .invoice-table th, .invoice-table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+          .invoice-table th { background-color: #f8f9fa; font-weight: bold; }
+          .invoice-total { display: flex; justify-content: flex-end; font-size: 18px; font-weight: bold; margin-top: 20px; border-top: 2px solid #333; padding-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-container">
+          <div class="invoice-header">
+            <div class="invoice-logo">ZENELAIT LUXE</div>
+            <div class="invoice-title">Invoice</div>
+          </div>
+          <div class="meta-grid">
+            <div>
+              <h3>Billed To:</h3>
+              <p><strong>Name:</strong> ${order.customerName}</p>
+              <p><strong>Email:</strong> ${order.email}</p>
+            </div>
+            <div>
+              <h3>Order Details:</h3>
+              <p><strong>Order ID:</strong> ${order.id}</p>
+              <p><strong>Date:</strong> ${order.date || 'N/A'}</p>
+              <p><strong>Payment Status:</strong> ${order.paymentStatus.toUpperCase()}</p>
+              <p><strong>Delivery Line:</strong> ${order.deliveryMethod || 'N/A'}</p>
+            </div>
+          </div>
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Size</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+          <div class="invoice-total">
+            Total Amount: ₹${order.total}
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          }
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   const handleAdminChatSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeOrder || !chatInput.trim()) return;
@@ -170,6 +256,11 @@ export const Orders: React.FC<OrdersProps> = ({ globalSearch = '' }) => {
     const matchesSearch = o.customerName.toLowerCase().includes(activeSearch.toLowerCase()) || o.id.toLowerCase().includes(activeSearch.toLowerCase());
     const matchesStatus = selectedStatus ? o.status === selectedStatus : true;
     return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    if (timeA !== timeB) return timeB - timeA;
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
   return (
@@ -317,10 +408,9 @@ export const Orders: React.FC<OrdersProps> = ({ globalSearch = '' }) => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Delivery Date & Time</label>
                     <input
-                      type="text"
+                      type="datetime-local"
                       className="form-control"
-                      placeholder="e.g. 13 July 2026 at 05:26 PM"
-                      value={activeOrder.deliveryDate || ''}
+                      value={activeOrder.deliveryDate ? activeOrder.deliveryDate.substring(0, 16) : ''}
                       onChange={e => {
                         const val = e.target.value;
                         setActiveOrder({ ...activeOrder, deliveryDate: val });
@@ -463,7 +553,7 @@ export const Orders: React.FC<OrdersProps> = ({ globalSearch = '' }) => {
 
               {/* Invoice printable trigger */}
               <div className="order-actions-section">
-                <button onClick={() => alert('Invoice PDF created.')} className="btn-admin btn-admin-secondary w-full">
+                <button onClick={() => handlePrintInvoice(activeOrder)} className="btn-admin btn-admin-secondary w-full">
                   <FileText size={14} /> Print Invoice
                 </button>
               </div>

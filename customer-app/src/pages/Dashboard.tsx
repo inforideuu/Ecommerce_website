@@ -52,6 +52,7 @@ interface ClientOrder {
   reviews?: any;
   itemsCount: number;
   items: OrderItem[];
+  createdAt?: string;
 }
 
 export const Dashboard: React.FC = () => {
@@ -102,7 +103,7 @@ export const Dashboard: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [showAddressForm, setShowAddressForm] = useState(false);
-  const [newAddress, setNewAddress] = useState({ type: 'Home', name: '', phone: '', details: '' });
+  const [newAddress, setNewAddress] = useState({ type: 'Home', name: '', phone: '', street: '', city: '', state: '', pincode: '', country: 'India' });
 
   // Notifications toggles
   const [notifications, setNotifications] = useState(() => {
@@ -481,17 +482,22 @@ export const Dashboard: React.FC = () => {
   // Add Address Handler
   const handleAddAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAddress.name || !newAddress.phone || !newAddress.details) return;
+    if (!newAddress.name || !newAddress.phone || !newAddress.street || !newAddress.city || !newAddress.state || !newAddress.pincode) return;
     const nextAddresses = [...addresses, {
       id: Date.now().toString(),
       type: newAddress.type,
       name: newAddress.name,
       phone: newAddress.phone,
-      details: newAddress.details
+      street: newAddress.street,
+      city: newAddress.city,
+      state: newAddress.state,
+      pincode: newAddress.pincode,
+      country: newAddress.country,
+      details: `${newAddress.street}, ${newAddress.city}, ${newAddress.state}, ${newAddress.pincode}, ${newAddress.country}`
     }];
     setAddresses(nextAddresses);
     localStorage.setItem('customer_addresses', JSON.stringify(nextAddresses));
-    setNewAddress({ type: 'Home', name: '', phone: '', details: '' });
+    setNewAddress({ type: 'Home', name: '', phone: '', street: '', city: '', state: '', pincode: '', country: 'India' });
     setShowAddressForm(false);
   };
 
@@ -661,9 +667,11 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const getReturnCountdown = (deliveryDateStr: string | undefined, orderDateStr: string) => {
-    const dateToUse = deliveryDateStr || orderDateStr;
-    const delivery = new Date(dateToUse);
+  const getReturnCountdown = (deliveryDateStr: string | undefined) => {
+    if (!deliveryDateStr) {
+      return { eligible: false, status: 'not_delivered', daysLeft: -1, text: `Item Not Delivered Yet`, expiryDate: '' };
+    }
+    const delivery = new Date(deliveryDateStr);
     const expiry = new Date(delivery);
     expiry.setDate(delivery.getDate() + 7);
     
@@ -678,14 +686,17 @@ export const Dashboard: React.FC = () => {
     const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
     const expiryStr = expiry.toLocaleDateString('en-GB', options);
     
-    if (diffDays > 1 && diffDays <= 7) {
-      return { eligible: true, status: 'eligible', daysLeft: diffDays, text: `${diffDays} Days Left`, expiryDate: expiryStr };
-    } else if (diffDays === 1) {
-      return { eligible: true, status: 'eligible', daysLeft: 1, text: `1 Day Left`, expiryDate: expiryStr };
-    } else if (diffDays === 0) {
-      return { eligible: true, status: 'last_day', daysLeft: 0, text: `Today is your last day to return.`, expiryDate: expiryStr };
-    } else {
+    if (today > expiry) {
       return { eligible: false, status: 'closed', daysLeft: -1, text: `Return Window Closed`, expiryDate: expiryStr };
+    }
+    
+    const displayDays = Math.min(7, diffDays);
+    if (displayDays > 1) {
+      return { eligible: true, status: 'eligible', daysLeft: displayDays, text: `${displayDays} Days Left`, expiryDate: expiryStr };
+    } else if (displayDays === 1) {
+      return { eligible: true, status: 'eligible', daysLeft: 1, text: `1 Day Left`, expiryDate: expiryStr };
+    } else {
+      return { eligible: true, status: 'last_day', daysLeft: 0, text: `Today is your last day to return.`, expiryDate: expiryStr };
     }
   };
 
@@ -1044,6 +1055,11 @@ export const Dashboard: React.FC = () => {
               const items = Array.isArray(order.items) ? order.items : [];
               const itemMatches = items.some((item: any) => item.name && item.name.toLowerCase().includes(query));
               return orderIdMatches || statusMatches || itemMatches;
+            }).sort((a, b) => {
+              const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+              const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+              if (timeA !== timeB) return timeB - timeA;
+              return new Date(b.date).getTime() - new Date(a.date).getTime();
             });
 
             return (
@@ -1073,7 +1089,7 @@ export const Dashboard: React.FC = () => {
                   ) : (
                     filteredOrders.map(order => {
                     const isDelivered = order.status.toLowerCase() === 'completed' || order.status.toLowerCase() === 'delivered';
-                    const countdown = getReturnCountdown(order.deliveryDate, order.date);
+                    const countdown = getReturnCountdown(order.deliveryDate);
 
                     return (
                       <div key={order.id} className="order-history-card glass-panel" style={{ padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -1125,44 +1141,48 @@ export const Dashboard: React.FC = () => {
                         {/* Return Request Tracker */}
                         {order.returnRequest && order.returnRequest.status && (
                           <div className="return-tracker-section" style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                            <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--text-rose)', display: 'flex', justifyContent: 'space-between' }}>
-                              <span>⚠️ Return Flow: {order.returnRequest.status}</span>
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Reason: {order.returnRequest.reason}</span>
-                            </h4>
-                            
-                            {/* Return Progress Stepper */}
                             {(() => {
                               const steps = ['Return Requested', 'Return Approved', 'Pickup Scheduled', 'Product Picked Up', 'Quality Inspection', 'Refund Processed', 'Refund Completed'];
                               const currentIdx = steps.indexOf(order.returnRequest.status);
+                              const isApprovedOrLater = currentIdx >= 1;
+                              const flowColor = isApprovedOrLater ? '#10b981' : 'var(--text-rose)';
+                              
                               return (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflowX: 'auto', padding: '10px 0', gap: '10px' }}>
-                                  {steps.map((st, sIdx) => {
-                                    const active = sIdx <= currentIdx;
-                                    return (
-                                      <div key={st} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', flex: 1 }}>
-                                        <div style={{
-                                          width: '24px',
-                                          height: '24px',
-                                          borderRadius: '50%',
-                                          background: active ? 'var(--text-rose)' : 'var(--bg-secondary)',
-                                          border: `2px solid ${active ? 'var(--text-rose)' : 'var(--border-color)'}`,
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          color: active ? '#fff' : 'var(--text-muted)',
-                                          fontSize: '0.65rem',
-                                          fontWeight: 'bold',
-                                          marginBottom: '6px'
-                                        }}>
-                                          {active ? '✓' : sIdx + 1}
+                                <>
+                                  <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: flowColor, display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>{isApprovedOrLater ? '✓' : '⚠️'} Return Flow: {order.returnRequest.status}</span>
+                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Reason: {order.returnRequest.reason}</span>
+                                  </h4>
+                                  
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflowX: 'auto', padding: '10px 0', gap: '10px' }}>
+                                    {steps.map((st, sIdx) => {
+                                      const active = sIdx <= currentIdx;
+                                      return (
+                                        <div key={st} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '80px', flex: 1 }}>
+                                          <div style={{
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '50%',
+                                            background: active ? flowColor : 'var(--bg-secondary)',
+                                            border: `2px solid ${active ? flowColor : 'var(--border-color)'}`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: active ? '#fff' : 'var(--text-muted)',
+                                            fontSize: '0.65rem',
+                                            fontWeight: 'bold',
+                                            marginBottom: '6px'
+                                          }}>
+                                            {active ? '✓' : sIdx + 1}
+                                          </div>
+                                          <span style={{ fontSize: '0.65rem', textAlign: 'center', color: active ? 'var(--text-primary)' : 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                            {st.replace('Product ', '').replace('Scheduled', '')}
+                                          </span>
                                         </div>
-                                        <span style={{ fontSize: '0.65rem', textAlign: 'center', color: active ? 'var(--text-primary)' : 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                                          {st.replace('Product ', '').replace('Scheduled', '')}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
+                                      );
+                                    })}
+                                  </div>
+                                </>
                               );
                             })()}
                             
@@ -1442,8 +1462,28 @@ export const Dashboard: React.FC = () => {
                     <input type="text" className="form-control" placeholder="e.g. +91 99999 88888" value={newAddress.phone} onChange={e => setNewAddress({ ...newAddress, phone: e.target.value })} required />
                   </div>
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>Street Address Details</label>
-                    <textarea className="form-control" placeholder="Complete address detail, building, suite, city, pincode" value={newAddress.details} onChange={e => setNewAddress({ ...newAddress, details: e.target.value })} required style={{ minHeight: '80px', padding: '10px' }} />
+                    <label style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>Street Address *</label>
+                    <input type="text" className="form-control" placeholder="e.g. Flat 402, Block B, Gold Crest" value={newAddress.street} onChange={e => setNewAddress({ ...newAddress, street: e.target.value })} required />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>City *</label>
+                      <input type="text" className="form-control" placeholder="e.g. Mumbai" value={newAddress.city} onChange={e => setNewAddress({ ...newAddress, city: e.target.value })} required />
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>State *</label>
+                      <input type="text" className="form-control" placeholder="e.g. Maharashtra" value={newAddress.state} onChange={e => setNewAddress({ ...newAddress, state: e.target.value })} required />
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>Postal / PIN Code *</label>
+                      <input type="text" className="form-control" placeholder="e.g. 400001" value={newAddress.pincode} onChange={e => setNewAddress({ ...newAddress, pincode: e.target.value })} required />
+                    </div>
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>Country *</label>
+                      <input type="text" className="form-control" placeholder="e.g. India" value={newAddress.country} onChange={e => setNewAddress({ ...newAddress, country: e.target.value })} required />
+                    </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button type="submit" className="btn-premium btn-premium-primary" style={{ padding: '8px 16px' }}>Save Address</button>
@@ -1464,7 +1504,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                       <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', fontSize: '0.85rem' }}>{addr.name}</p>
                       <p style={{ margin: '0 0 8px 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{addr.phone}</p>
-                      <p style={{ margin: 0, fontSize: '0.8rem', lineHeight: 1.5 }}>{addr.details}</p>
+                      <p style={{ margin: 0, fontSize: '0.8rem', lineHeight: 1.5 }}>{addr.street ? `${addr.street}, ${addr.city}, ${addr.state}, ${addr.pincode}, ${addr.country}` : addr.details}</p>
                     </div>
                   </div>
                 ))}
@@ -2119,6 +2159,11 @@ export const Dashboard: React.FC = () => {
                 <p style={{ margin: 0, fontSize: '0.9rem' }}>Order ID: <strong style={{ color: 'var(--accent-gold)' }}>{trackingOrder.id}</strong></p>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Logistics Carrier: <strong>{trackingOrder.deliveryMethod || 'Blue Dart Luxury Delivery'}</strong></p>
                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Tracking Number: <strong>{trackingOrder.trackingNumber || 'AWT-09281726-IND'}</strong></p>
+                {trackingOrder.deliveryDate && (
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                    Delivery Date & Time: <strong style={{ color: 'var(--accent-gold)' }}>{new Date(trackingOrder.deliveryDate).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</strong>
+                  </p>
+                )}
               </div>
 
               {/* Stepper Timeline */}

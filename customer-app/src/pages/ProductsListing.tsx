@@ -65,7 +65,7 @@ export const ProductsListing: React.FC = () => {
   // Extract unique brands, sizes, colors, and materials from the fetched dataset for dynamic filters
   const uniqueBrands = Array.from(new Set(products.map(p => p.brand).filter(Boolean)));
   const uniqueMaterials = ['Silk', 'Cotton', 'Linen', 'Wool', 'Cashmere', 'Polyester'];
-  const uniqueFits = ['Slim Fit', 'Regular Fit', 'Casual Fit', 'Oversized'];
+  const uniqueFits = ['Slim Fit', 'Regular Fit', 'Casual Fit', 'Oversized Fit', 'Tailored Fit'];
   
   // Reset all filters
   const handleResetFilters = () => {

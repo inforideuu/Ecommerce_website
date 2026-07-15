@@ -33,7 +33,17 @@ export const Settings: React.FC = () => {
   // Load and manage users list from localStorage
   const [productsList, setProductsList] = useState<any[]>([]);
   const [productFilterQuery, setProductFilterQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [users, setUsers] = useState<UserAccount[]>([]);
+
+  useEffect(() => {
+    if (generalForm.flashSaleProductId && productsList.length > 0) {
+      const match = productsList.find(p => p.id === generalForm.flashSaleProductId);
+      if (match) {
+        setProductFilterQuery(match.name);
+      }
+    }
+  }, [generalForm.flashSaleProductId, productsList]);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
@@ -316,33 +326,127 @@ export const Settings: React.FC = () => {
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: '16px' }}>
+              <div className="form-group" style={{ marginBottom: '16px', position: 'relative' }}>
                 <label>Featured Flash Sale Product Selection</label>
-                <input
-                  type="text"
-                  placeholder="Type to search product by name or SKU..."
-                  value={productFilterQuery}
-                  onChange={e => setProductFilterQuery(e.target.value)}
-                  className="form-control"
-                  style={{ marginBottom: '8px', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
-                />
-                <select
-                  value={generalForm.flashSaleProductId || ''}
-                  onChange={handleProductChange}
-                  className="form-control"
-                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
-                >
-                  <option value="">-- Choose Custom Product from Catalog --</option>
-                  {productsList
-                    .filter(p => 
-                      p.name.toLowerCase().includes(productFilterQuery.toLowerCase()) || 
-                      p.id.toLowerCase().includes(productFilterQuery.toLowerCase())
-                    )
-                    .map(p => (
-                      <option key={p.id} value={p.id}>{p.name} (SKU: {p.id})</option>
-                    ))
-                  }
-                </select>
+                
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    placeholder="Search product to select..."
+                    value={productFilterQuery}
+                    onChange={e => {
+                      setProductFilterQuery(e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    className="form-control"
+                    style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', paddingRight: '40px' }}
+                  />
+                  {generalForm.flashSaleProductId && (
+                    <span 
+                      style={{ 
+                        position: 'absolute', 
+                        right: '10px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)', 
+                        fontSize: '0.75rem', 
+                        background: 'rgba(212,175,55,0.2)', 
+                        color: 'var(--accent-gold)', 
+                        padding: '2px 6px', 
+                        borderRadius: '4px' 
+                      }}
+                    >
+                      Selected
+                    </span>
+                  )}
+                </div>
+
+                {isDropdownOpen && (
+                  <>
+                    <div 
+                      onClick={() => setIsDropdownOpen(false)} 
+                      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 999 }}
+                    />
+                    <div 
+                      style={{ 
+                        position: 'absolute', 
+                        top: '100%', 
+                        left: 0, 
+                        right: 0, 
+                        maxHeight: '200px', 
+                        overflowY: 'auto', 
+                        background: 'var(--bg-secondary)', 
+                        border: '1px solid var(--border-color)', 
+                        borderRadius: '8px', 
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)', 
+                        zIndex: 1000,
+                        marginTop: '4px'
+                      }}
+                    >
+                      <div 
+                        onClick={() => {
+                          setGeneralForm(prev => ({ ...prev, flashSaleProductId: '' }));
+                          setProductFilterQuery('');
+                          setIsDropdownOpen(false);
+                        }}
+                        style={{ 
+                          padding: '10px 14px', 
+                          cursor: 'pointer', 
+                          borderBottom: '1px solid var(--border-color)', 
+                          fontSize: '0.85rem',
+                          color: 'var(--text-secondary)'
+                        }}
+                      >
+                        -- Choose Custom Product from Catalog --
+                      </div>
+                      
+                      {productsList
+                        .filter(p => 
+                          p.name.toLowerCase().includes(productFilterQuery.toLowerCase()) || 
+                          p.id.toLowerCase().includes(productFilterQuery.toLowerCase())
+                        )
+                        .map(p => (
+                          <div
+                            key={p.id}
+                            onClick={() => {
+                              const selectedProd = productsList.find((x: any) => x.id === p.id);
+                              setGeneralForm(prev => ({ 
+                                ...prev, 
+                                flashSaleProductId: p.id,
+                                flashSaleImage: selectedProd && selectedProd.images && selectedProd.images[0] ? selectedProd.images[0] : prev.flashSaleImage
+                              }));
+                              setProductFilterQuery(p.name);
+                              setIsDropdownOpen(false);
+                            }}
+                            style={{ 
+                              padding: '10px 14px', 
+                              cursor: 'pointer', 
+                              borderBottom: '1px solid var(--border-color)',
+                              fontSize: '0.85rem',
+                              background: generalForm.flashSaleProductId === p.id ? 'rgba(212,175,55,0.1)' : 'transparent',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              color: 'var(--text-primary)'
+                            }}
+                          >
+                            <span>{p.name}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {p.id}</span>
+                          </div>
+                        ))
+                      }
+                      
+                      {productsList.filter(p => 
+                        p.name.toLowerCase().includes(productFilterQuery.toLowerCase()) || 
+                        p.id.toLowerCase().includes(productFilterQuery.toLowerCase())
+                      ).length === 0 && (
+                        <div style={{ padding: '12px', fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                          No products found
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
                 <span className="help-text" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Selecting a product automatically populates its cover photo below.</span>
               </div>
 

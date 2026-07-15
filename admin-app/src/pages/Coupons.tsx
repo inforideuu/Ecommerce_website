@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
-import { Plus, Ticket, Trash2, X } from 'lucide-react';
+import { Plus, Ticket, Trash2, Edit, X } from 'lucide-react';
 
 interface CouponItem {
   id: string;
@@ -16,6 +16,7 @@ interface CouponItem {
 export const Coupons: React.FC = () => {
   const [coupons, setCoupons] = useState<CouponItem[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<CouponItem | null>(null);
   const [formFields, setFormFields] = useState({
     code: '',
     type: 'percentage' as 'percentage' | 'fixed',
@@ -49,10 +50,38 @@ export const Coupons: React.FC = () => {
     fetchCoupons();
   }, []);
 
+  const handleOpenAddForm = () => {
+    setEditingCoupon(null);
+    setFormFields({
+      code: '',
+      type: 'percentage',
+      value: 10,
+      minPurchase: 0,
+      requiredSupercoins: 0,
+      expiry: '',
+      status: 'active'
+    });
+    setIsFormOpen(true);
+  };
+
+  const handleOpenEditForm = (c: CouponItem) => {
+    setEditingCoupon(c);
+    setFormFields({
+      code: c.code,
+      type: c.type,
+      value: c.value,
+      minPurchase: c.minPurchase,
+      requiredSupercoins: c.requiredSupercoins,
+      expiry: c.expiry,
+      status: c.status
+    });
+    setIsFormOpen(true);
+  };
+
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const payload = {
-      id: '',
+      id: editingCoupon ? editingCoupon.id : '',
       code: formFields.code,
       type: formFields.type,
       value: formFields.value,
@@ -104,7 +133,7 @@ export const Coupons: React.FC = () => {
           <h1 className="serif-text">Promo Campaign Codes</h1>
           <p className="subtitle">Add seasonal discount rates, manage exclusive influencer campaigns, and track rules.</p>
         </div>
-        <button onClick={() => setIsFormOpen(true)} className="btn-admin btn-admin-primary">
+        <button onClick={handleOpenAddForm} className="btn-admin btn-admin-primary">
           <Plus size={14} /> Add Coupon
         </button>
       </div>
@@ -146,11 +175,14 @@ export const Coupons: React.FC = () => {
                     {c.status}
                   </span>
                 </td>
-                <td style={{ textAlign: 'right' }}>
-                  <button onClick={() => deleteCoupon(c.id)} className="text-rose" title="Delete Coupon">
-                    <Trash2 size={14} />
-                  </button>
-                </td>
+                 <td style={{ textAlign: 'right' }}>
+                   <button onClick={() => handleOpenEditForm(c)} style={{ marginRight: '12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-gold)' }} title="Edit Coupon">
+                     <Edit size={14} />
+                   </button>
+                   <button onClick={() => deleteCoupon(c.id)} className="text-rose" title="Delete Coupon">
+                     <Trash2 size={14} />
+                   </button>
+                 </td>
               </tr>
             ))}
           </tbody>
@@ -161,10 +193,10 @@ export const Coupons: React.FC = () => {
       {isFormOpen && (
         <div className="form-drawer-overlay" onClick={() => setIsFormOpen(false)}>
           <div className="form-drawer glass-card" onClick={e => e.stopPropagation()}>
-            <div className="drawer-header">
-              <h2>Add Promo Code</h2>
-              <button onClick={() => setIsFormOpen(false)}><X size={20} /></button>
-            </div>
+             <div className="drawer-header">
+               <h2>{editingCoupon ? 'Edit Promo Code' : 'Add Promo Code'}</h2>
+               <button onClick={() => setIsFormOpen(false)}><X size={20} /></button>
+             </div>
 
             <form onSubmit={handleFormSubmit} className="drawer-scroll-body">
               <div className="form-group">
@@ -227,20 +259,34 @@ export const Coupons: React.FC = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Expiry Date</label>
-                <input
-                  type="date"
-                  required
-                  value={formFields.expiry}
-                  onChange={e => setFormFields({ ...formFields, expiry: e.target.value })}
-                  className="form-control"
-                />
-              </div>
+               <div className="form-group">
+                 <label>Expiry Date</label>
+                 <input
+                   type="date"
+                   required
+                   value={formFields.expiry}
+                   onChange={e => setFormFields({ ...formFields, expiry: e.target.value })}
+                   className="form-control"
+                 />
+               </div>
 
-              <button type="submit" className="btn-admin btn-admin-primary w-full mt-4">
-                Launch Campaign
-              </button>
+               {editingCoupon && (
+                 <div className="form-group">
+                   <label>Campaign Status</label>
+                   <select
+                     value={formFields.status}
+                     onChange={e => setFormFields({ ...formFields, status: e.target.value as 'active' | 'expired' })}
+                     className="form-control"
+                   >
+                     <option value="active">Active</option>
+                     <option value="expired">Expired</option>
+                   </select>
+                 </div>
+               )}
+
+               <button type="submit" className="btn-admin btn-admin-primary w-full mt-4">
+                 {editingCoupon ? 'Save Changes' : 'Launch Campaign'}
+               </button>
             </form>
           </div>
         </div>

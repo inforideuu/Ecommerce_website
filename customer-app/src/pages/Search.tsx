@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
-import { BRANDS, CATEGORIES } from '../data/products';
+import { CATEGORIES } from '../data/products';
 import type { Product } from '../data/products';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
@@ -180,7 +180,7 @@ export const Search: React.FC = () => {
   const occasions = Array.from(new Set(products.map(p => p.occasion).filter(Boolean)));
   // Color palette set
   const allColors = Array.from(new Set(products.flatMap(p => p.colors || []).filter(Boolean)));
-  const activeBrandsList = dbBrands.length > 0 ? dbBrands.map(b => b.name) : BRANDS;
+  const activeBrandsList = dbBrands.map(b => b.name);
 
   return (
     <div className="search-page-container container">

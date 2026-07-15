@@ -52,7 +52,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (existingIndex > -1) {
         const newItems = [...prevItems];
-        newItems[existingIndex].quantity += quantity;
+        newItems[existingIndex] = {
+          ...newItems[existingIndex],
+          quantity: newItems[existingIndex].quantity + quantity
+        };
         return newItems;
       }
 

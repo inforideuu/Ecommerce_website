@@ -20,7 +20,7 @@ export const Home: React.FC = () => {
   const [flashSubtitle, setFlashSubtitle] = useState('Save up to 30% off selected leather garments and silk styles. Complimentary silk garment cover included.');
   const [flashImage, setFlashImage] = useState('https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop&q=80');
   const [flashSaleProductId, setFlashSaleProductId] = useState('luxe-3');
-  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 34, seconds: 55 });
+  const [totalSeconds, setTotalSeconds] = useState<number>(4 * 3600 + 34 * 60 + 55);
   const [dbBrands, setDbBrands] = useState<any[]>([]);
 
   const defaultReviews = [
@@ -31,19 +31,23 @@ export const Home: React.FC = () => {
   const [dbReviews, setDbReviews] = useState<any[]>(defaultReviews);
 
   useEffect(() => {
+    if (totalSeconds <= 0) return;
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        clearInterval(timer);
-        return prev;
+      setTotalSeconds(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [totalSeconds > 0]);
 
-  const isExpired = timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const isExpired = totalSeconds <= 0;
 
   const handleAccessPrivateSale = () => {
     if (isExpired) return;
@@ -90,10 +94,14 @@ export const Home: React.FC = () => {
           if (data.flash_sale_image) setFlashImage(data.flash_sale_image);
           if (data.flash_sale_product_id) setFlashSaleProductId(data.flash_sale_product_id);
           
-          const hours = parseInt(data.flash_sale_hours) || 4;
-          const mins = parseInt(data.flash_sale_minutes) || 34;
-          const secs = parseInt(data.flash_sale_seconds) || 55;
-          setTimeLeft({ hours, minutes: mins, seconds: secs });
+          const parsedHours = parseInt(data.flash_sale_hours);
+          const parsedMins = parseInt(data.flash_sale_minutes);
+          const parsedSecs = parseInt(data.flash_sale_seconds);
+          
+          const hoursVal = !isNaN(parsedHours) ? parsedHours : 4;
+          const minsVal = !isNaN(parsedMins) ? parsedMins : 34;
+          const secsVal = !isNaN(parsedSecs) ? parsedSecs : 55;
+          setTotalSeconds(hoursVal * 3600 + minsVal * 60 + secsVal);
         }
       })
       .catch(err => console.error('Failed to load flash sale settings:', err));
@@ -240,17 +248,17 @@ export const Home: React.FC = () => {
               {/* Animated timer */}
               <div className="countdown-timer">
                 <div className="timer-box">
-                  <span className="timer-num">{timeLeft.hours.toString().padStart(2, '0')}</span>
+                  <span className="timer-num">{hours.toString().padStart(2, '0')}</span>
                   <span className="timer-unit">Hours</span>
                 </div>
                 <div className="timer-colon">:</div>
                 <div className="timer-box">
-                  <span className="timer-num">{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                  <span className="timer-num">{minutes.toString().padStart(2, '0')}</span>
                   <span className="timer-unit">Mins</span>
                 </div>
                 <div className="timer-colon">:</div>
                 <div className="timer-box">
-                  <span className="timer-num">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                  <span className="timer-num">{seconds.toString().padStart(2, '0')}</span>
                   <span className="timer-unit">Secs</span>
                 </div>
               </div>

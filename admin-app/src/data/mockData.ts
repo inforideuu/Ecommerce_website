@@ -51,6 +51,7 @@ export interface AdminOrder {
   reviews?: any;
   itemsCount: number;
   items?: any[];
+  createdAt?: string;
 }
 
 export interface AdminCustomer {

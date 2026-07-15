@@ -60,6 +60,7 @@ class Order(models.Model):
     returnRequest = models.TextField(default="{}")
     exchangeRequest = models.TextField(default="{}")
     reviews = models.TextField(default="{}")
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
 class Customer(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
