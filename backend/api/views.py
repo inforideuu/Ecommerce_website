@@ -695,16 +695,28 @@ def get_products(request):
     from django.db.models.functions import Lower
 
     if gender:
-        gender_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
-        db_gender = gender_map.get(gender.lower(), gender)
-        qs = qs.filter(category__iexact=db_gender)
+        db_gender = gender
+        try:
+            all_cats = list(Product.objects.values_list('category', flat=True).distinct())
+            cat_mapping = {c.lower(): c for c in all_cats if c}
+            db_gender = cat_mapping.get(gender.lower(), gender)
+        except Exception:
+            gender_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
+            db_gender = gender_map.get(gender.lower(), gender)
+        qs = qs.filter(category=db_gender)
     elif category:
         if category == 'Sale':
             qs = qs.filter(discount__gt=0)
         else:
-            cat_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
-            db_cat = cat_map.get(category.lower(), category)
-            qs = qs.filter(category__iexact=db_cat)
+            db_cat = category
+            try:
+                all_cats = list(Product.objects.values_list('category', flat=True).distinct())
+                cat_mapping = {c.lower(): c for c in all_cats if c}
+                db_cat = cat_mapping.get(category.lower(), category)
+            except Exception:
+                cat_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
+                db_cat = cat_map.get(category.lower(), category)
+            qs = qs.filter(category=db_cat)
             
     if subcategory:
         clean_sub = subcategory.replace('-', ' ').replace('/', ' ').lower()
