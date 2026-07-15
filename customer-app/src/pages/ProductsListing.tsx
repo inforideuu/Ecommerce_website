@@ -33,6 +33,18 @@ export const ProductsListing: React.FC = () => {
 
   // Drawer status for Mobile filters
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [dbBrands, setDbBrands] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/admin/brands`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setDbBrands(data);
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   // Fetch Products based on URL query
   useEffect(() => {
@@ -242,7 +254,12 @@ export const ProductsListing: React.FC = () => {
                         checked={selectedBrands.includes(b)} 
                         onChange={() => handleBrandToggle(b)} 
                       />
-                      <span>{b}</span>
+                      <span>
+                        {b}
+                        {dbBrands.find((br: any) => br.name === b)?.featured && (
+                          <span style={{ color: 'var(--accent-gold)', marginLeft: '4px' }} title="Featured House">★</span>
+                        )}
+                      </span>
                     </label>
                   ))}
                 </div>

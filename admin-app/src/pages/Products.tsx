@@ -431,10 +431,14 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       status: activeStatus,
       tag: formFields.featured ? 'Featured' : (formFields.bestSeller ? 'Best Seller' : ''),
       occasion: formFields.occasion,
-      // Boolean publications values mapped to numbers/booleans in model
       trending: formFields.trending ? 1 : 0,
       featured: formFields.featured ? 1 : 0,
       bestSeller: formFields.bestSeller ? 1 : 0,
+      newArrival: formFields.newArrival ? 1 : 0,
+      limitedEdition: formFields.limitedEdition ? 1 : 0,
+      slug: formFields.slug,
+      seoTitle: formFields.seoTitle,
+      metaDescription: formFields.metaDescription,
       seoKeywords: formFields.seoKeywords,
       details: [
         `Fabric: ${formFields.fabric}`,
@@ -1052,38 +1056,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
               </div>
             </div>
 
-            {/* Section 7: Shipping */}
-            <div className="premium-card glass-card">
-              <div className="card-header-row">
-                <Truck size={18} />
-                <div>
-                  <h3>Logistics & Shipping</h3>
-                  <p>Provide package weights and boxes sizing for delivery calculations</p>
-                </div>
-              </div>
 
-              <div className="form-grid-2" style={{ marginBottom: '16px' }}>
-                <div className="form-group">
-                  <label>Package Weight (kg)</label>
-                  <input type="number" step="0.01" className="form-control" value={formFields.weight} onChange={e => setFormFields({ ...formFields, weight: Number(e.target.value) })} />
-                </div>
-                <div className="form-group">
-                  <label>Box Length (cm)</label>
-                  <input type="number" className="form-control" value={formFields.length} onChange={e => setFormFields({ ...formFields, length: Number(e.target.value) })} />
-                </div>
-              </div>
-
-              <div className="form-grid-2">
-                <div className="form-group">
-                  <label>Box Width (cm)</label>
-                  <input type="number" className="form-control" value={formFields.width} onChange={e => setFormFields({ ...formFields, width: Number(e.target.value) })} />
-                </div>
-                <div className="form-group">
-                  <label>Box Height (cm)</label>
-                  <input type="number" className="form-control" value={formFields.height} onChange={e => setFormFields({ ...formFields, height: Number(e.target.value) })} />
-                </div>
-              </div>
-            </div>
 
             {/* Section 8: SEO */}
             <div className="premium-card glass-card">

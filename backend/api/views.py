@@ -619,6 +619,21 @@ def format_product(p, ratings_map=None):
             final_rating = 0.0
             final_count = 0
 
+    slug = ""
+    seo_title = ""
+    meta_desc = ""
+    seo_keywords = p.seoKeywords or ""
+    
+    if seo_keywords.startswith("{") and seo_keywords.endswith("}"):
+        try:
+            seo_data = json.loads(seo_keywords)
+            slug = seo_data.get("slug", "")
+            seo_title = seo_data.get("seoTitle", "")
+            meta_desc = seo_data.get("metaDescription", "")
+            seo_keywords = seo_data.get("seoKeywords", "")
+        except Exception:
+            pass
+
     return {
         "id": p.id,
         "name": p.name,
@@ -640,7 +655,10 @@ def format_product(p, ratings_map=None):
         "weight": p.weight,
         "dimensions": p.dimensions,
         "status": p.status,
-        "seoKeywords": p.seoKeywords,
+        "slug": slug,
+        "seoTitle": seo_title,
+        "metaDescription": meta_desc,
+        "seoKeywords": seo_keywords,
         "rating": final_rating,
         "reviewsCount": final_count,
         "inStock": bool(p.inStock and p.stock > 0),
@@ -679,14 +697,14 @@ def get_products(request):
     if gender:
         gender_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
         db_gender = gender_map.get(gender.lower(), gender)
-        qs = qs.filter(category=db_gender)
+        qs = qs.filter(category__iexact=db_gender)
     elif category:
         if category == 'Sale':
             qs = qs.filter(discount__gt=0)
         else:
             cat_map = {'men': 'Men', 'women': 'Women', 'kids': 'Kids'}
             db_cat = cat_map.get(category.lower(), category)
-            qs = qs.filter(category=db_cat)
+            qs = qs.filter(category__iexact=db_cat)
             
     if subcategory:
         clean_sub = subcategory.replace('-', ' ').replace('/', ' ').lower()
@@ -802,7 +820,13 @@ def get_admin_products(request):
                 images=json.dumps(body.get('images', [])),
                 sizes=json.dumps(body.get('sizes', ['S', 'M', 'L'])),
                 colors=json.dumps(body.get('colors', ['#ffffff'])),
-                details=json.dumps(body.get('details', []))
+                details=json.dumps(body.get('details', [])),
+                seoKeywords=json.dumps({
+                    "slug": body.get("slug", ""),
+                    "seoTitle": body.get("seoTitle", ""),
+                    "metaDescription": body.get("metaDescription", ""),
+                    "seoKeywords": body.get("seoKeywords", "")
+                })
             )
             return JsonResponse({"success": True, "id": p_id})
         except Exception as e:
@@ -858,6 +882,28 @@ def modify_product(request, product_id):
             if 'details' in body:
                 p.details = json.dumps(body['details'])
                 
+            existing_slug = ""
+            existing_title = ""
+            existing_desc = ""
+            existing_kw = p.seoKeywords or ""
+            if existing_kw.startswith("{") and existing_kw.endswith("}"):
+                try:
+                    js = json.loads(existing_kw)
+                    existing_slug = js.get("slug", "")
+                    existing_title = js.get("seoTitle", "")
+                    existing_desc = js.get("metaDescription", "")
+                    existing_kw = js.get("seoKeywords", "")
+                except Exception:
+                    pass
+            
+            seo_data = {
+                "slug": body.get("slug", existing_slug),
+                "seoTitle": body.get("seoTitle", existing_title),
+                "metaDescription": body.get("metaDescription", existing_desc),
+                "seoKeywords": body.get("seoKeywords", existing_kw)
+            }
+            p.seoKeywords = json.dumps(seo_data)
+                
             p.save()
             return JsonResponse({"success": True})
         except Exception as e:
@@ -883,12 +929,51 @@ def categories(request):
     check_and_seed()
     if request.method == 'GET':
         qs = Category.objects.all()
-        data = [{"id": c.id, "name": c.name, "parentCategory": c.parentCategory, "slug": c.slug, "status": c.status, "image": c.image} for c in qs]
+        data = []
+        for c in qs:
+            img_val = c.image or ""
+            featured = False
+            show_on_homepage = False
+            sort_order = 0
+            description = ""
+            
+            if img_val.startswith("{") and img_val.endswith("}"):
+                try:
+                    meta = json.loads(img_val)
+                    img_val = meta.get("image", "")
+                    featured = meta.get("featured", False)
+                    show_on_homepage = meta.get("showOnHomepage", False)
+                    sort_order = int(meta.get("sortOrder", 0))
+                    description = meta.get("description", "")
+                except Exception:
+                    pass
+            
+            data.append({
+                "id": c.id,
+                "name": c.name,
+                "parentCategory": c.parentCategory,
+                "slug": c.slug,
+                "status": c.status,
+                "image": img_val,
+                "featured": featured,
+                "showOnHomepage": show_on_homepage,
+                "sortOrder": sort_order,
+                "description": description
+            })
         return JsonResponse(data, safe=False)
     elif request.method == 'POST':
         try:
             body = json.loads(request.body)
             c_id = body.get('id') or ('cat-' + str(random.randint(100, 999)))
+            
+            meta_image = json.dumps({
+                "image": body.get("image", ""),
+                "featured": bool(body.get("featured", False)),
+                "showOnHomepage": bool(body.get("showOnHomepage", False)),
+                "sortOrder": int(body.get("sortOrder", 0)),
+                "description": body.get("description", "")
+            })
+            
             Category.objects.update_or_create(
                 id=c_id,
                 defaults={
@@ -896,7 +981,7 @@ def categories(request):
                     "parentCategory": body.get('parentCategory', 'None'),
                     "slug": body.get('slug', 'default'),
                     "status": body.get('status', 'active'),
-                    "image": body.get('image', '')
+                    "image": meta_image
                 }
             )
             return JsonResponse({"success": True, "id": c_id})
@@ -1169,22 +1254,70 @@ def admin_settings(request):
 def brands(request):
     if request.method == 'GET':
         qs = Brand.objects.all()
-        data = [{
-            "id": b.id,
-            "name": b.name,
-            "slug": b.slug,
-            "logo": b.logo,
-            "status": b.status,
-            "seoTitle": b.seoTitle,
-            "metaDescription": b.metaDescription,
-            "seoKeywords": b.seoKeywords
-        } for b in qs]
+        data = []
+        for b in qs:
+            desc = ""
+            banner = ""
+            website = ""
+            country = ""
+            founded = 1970
+            b_type = "Luxury"
+            featured = False
+            show_on_homepage = False
+            seo_kw = b.seoKeywords or ""
+            
+            if seo_kw.startswith("{") and seo_kw.endswith("}"):
+                try:
+                    js = json.loads(seo_kw)
+                    desc = js.get("description", "")
+                    banner = js.get("banner", "")
+                    website = js.get("website", "")
+                    country = js.get("country", "")
+                    founded = int(js.get("founded", 1970))
+                    b_type = js.get("type", "Luxury")
+                    featured = js.get("featured", False)
+                    show_on_homepage = js.get("showOnHomepage", False)
+                    seo_kw = js.get("seoKeywords", "")
+                except Exception:
+                    pass
+            
+            data.append({
+                "id": b.id,
+                "name": b.name,
+                "slug": b.slug,
+                "logo": b.logo,
+                "status": b.status,
+                "seoTitle": b.seoTitle or "",
+                "metaDescription": b.metaDescription or "",
+                "seoKeywords": seo_kw,
+                "description": desc,
+                "banner": banner,
+                "website": website,
+                "country": country,
+                "founded": founded,
+                "type": b_type,
+                "featured": featured,
+                "showOnHomepage": show_on_homepage
+            })
         return JsonResponse(data, safe=False)
     
     elif request.method == 'POST':
         try:
             body = json.loads(request.body)
             brand_id = body.get('id') or f"br-{random.randint(1000, 9999)}"
+            
+            seo_data = json.dumps({
+                "description": body.get("description", ""),
+                "banner": body.get("banner", ""),
+                "website": body.get("website", ""),
+                "country": body.get("country", ""),
+                "founded": int(body.get("founded", 1970)),
+                "type": body.get("type", "Luxury"),
+                "featured": bool(body.get("featured", False)),
+                "showOnHomepage": bool(body.get("showOnHomepage", False)),
+                "seoKeywords": body.get("seoKeywords", "")
+            })
+            
             brand, created = Brand.objects.update_or_create(
                 id=brand_id,
                 defaults={
@@ -1194,7 +1327,7 @@ def brands(request):
                     "status": body.get('status', 'active'),
                     "seoTitle": body.get('seoTitle', ''),
                     "metaDescription": body.get('metaDescription', ''),
-                    "seoKeywords": body.get('seoKeywords', '')
+                    "seoKeywords": seo_data
                 }
             )
             return JsonResponse({"success": True, "brand": {"id": brand.id, "name": brand.name}})

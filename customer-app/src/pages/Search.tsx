@@ -43,7 +43,7 @@ export const Search: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setDbBrands(data);
+          setDbBrands(data.filter((b: any) => b.status === 'active'));
         }
       })
       .catch(err => console.error('Failed to fetch brands:', err));
@@ -250,7 +250,12 @@ export const Search: React.FC = () => {
                       checked={selectedBrands.includes(br)}
                       onChange={() => toggleBrand(br)}
                     />
-                    <span>{br}</span>
+                    <span>
+                      {br}
+                      {dbBrands.find((b: any) => b.name === br)?.featured && (
+                        <span style={{ color: 'var(--accent-gold)', marginLeft: '4px' }} title="Featured House">★</span>
+                      )}
+                    </span>
                   </label>
                 ))}
               </div>

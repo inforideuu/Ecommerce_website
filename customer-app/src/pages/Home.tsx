@@ -71,7 +71,9 @@ export const Home: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const roots = data.filter(c => c.parentCategory === 'None' || c.parentCategory === 'none' || !c.parentCategory);
+          const roots = data
+            .filter(c => (c.parentCategory === 'None' || c.parentCategory === 'none' || !c.parentCategory) && (c.showOnHomepage !== false))
+            .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
           setDbCategories(roots);
         }
       })
@@ -100,7 +102,7 @@ export const Home: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          setDbBrands(data.filter(b => b.status === 'active'));
+          setDbBrands(data.filter(b => b.status === 'active' && b.showOnHomepage === true));
         }
       })
       .catch(err => console.error('Failed to fetch brands list:', err));

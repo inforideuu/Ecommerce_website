@@ -130,12 +130,12 @@ export const Categories: React.FC = () => {
       name: c.name || '',
       slug: c.slug || '',
       parentCategory: c.parentCategory || 'None',
-      description: '',
+      description: (c as any).description || '',
       thumbnail: c.image || 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=200&q=80',
       status: c.status || 'active',
-      featured: false,
-      showOnHomepage: false,
-      sortOrder: 0,
+      featured: (c as any).featured || false,
+      showOnHomepage: (c as any).showOnHomepage || false,
+      sortOrder: (c as any).sortOrder || 0,
       seoTitle: c.name || '',
       metaDescription: '',
       seoKeywords: ''
@@ -204,7 +204,11 @@ export const Categories: React.FC = () => {
       parentCategory: formFields.parentCategory,
       slug: formFields.slug,
       status: activeStatus,
-      image: formFields.thumbnail
+      image: formFields.thumbnail,
+      featured: formFields.featured,
+      showOnHomepage: formFields.showOnHomepage,
+      sortOrder: formFields.sortOrder,
+      description: formFields.description
     };
 
     fetch(`${API_BASE_URL}/api/categories`, {
