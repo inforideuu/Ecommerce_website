@@ -456,7 +456,7 @@ export const Brands: React.FC = () => {
               <button type="button" className="btn-admin btn-admin-secondary" onClick={() => alert(`Preview:\nBrand: ${formFields.name || 'Unnamed'}\nSlug: /brand/${formFields.slug}\nType: ${formFields.type}`)}>
                 <Eye size={14} /> Preview
               </button>
-              <button type="button" className="btn-admin btn-admin-primary" onClick={(e) => handleSaveBrand(e, 'active')}>
+              <button type="button" className="btn-admin btn-admin-primary" onClick={(e) => handleSaveBrand(e)}>
                 <Check size={14} /> Save Brand
               </button>
             </div>

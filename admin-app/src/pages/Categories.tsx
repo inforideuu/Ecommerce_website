@@ -564,7 +564,7 @@ export const Categories: React.FC = () => {
               <button type="button" className="btn-admin btn-admin-secondary" onClick={() => alert(`Preview:\nName: ${formFields.name || 'Unnamed'}\nSlug: /${formFields.slug}\nParent: ${formFields.parentCategory}`)}>
                 <Eye size={14} /> Preview
               </button>
-              <button type="button" className="btn-admin btn-admin-primary" onClick={(e) => handleSaveCategory(e, 'active')}>
+              <button type="button" className="btn-admin btn-admin-primary" onClick={(e) => handleSaveCategory(e)}>
                 <Check size={14} /> Create Category
               </button>
             </div>

@@ -1246,7 +1246,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
               <button 
                 type="button" 
                 className="btn-admin btn-admin-primary"
-                onClick={(e) => handleSaveProduct(e, 'active')}
+                onClick={(e) => handleSaveProduct(e)}
               >
                 <Check size={14} /> Publish Garment
               </button>
