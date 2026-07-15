@@ -129,15 +129,6 @@ export const Settings: React.FC = () => {
       });
   };
 
-  const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const prodId = e.target.value;
-    const selectedProd = productsList.find(p => p.id === prodId);
-    setGeneralForm(prev => ({
-      ...prev,
-      flashSaleProductId: prodId,
-      flashSaleImage: selectedProd && selectedProd.images && selectedProd.images[0] ? selectedProd.images[0] : prev.flashSaleImage
-    }));
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
