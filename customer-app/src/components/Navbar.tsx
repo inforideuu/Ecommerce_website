@@ -164,7 +164,14 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
-      .then(data => setDbCategories(data))
+      .then(data => {
+        if (Array.isArray(data)) {
+          const activeCats = data
+            .filter(c => c.status === 'active')
+            .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+          setDbCategories(activeCats);
+        }
+      })
       .catch(err => console.error('Failed to fetch categories for navbar:', err));
   }, []);
 

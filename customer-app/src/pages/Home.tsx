@@ -72,7 +72,7 @@ export const Home: React.FC = () => {
       .then(data => {
         if (Array.isArray(data)) {
           const roots = data
-            .filter(c => (c.parentCategory === 'None' || c.parentCategory === 'none' || !c.parentCategory) && (c.showOnHomepage !== false))
+            .filter(c => (c.parentCategory === 'None' || c.parentCategory === 'none' || !c.parentCategory) && (c.status === 'active') && (c.showOnHomepage !== false))
             .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
           setDbCategories(roots);
         }
