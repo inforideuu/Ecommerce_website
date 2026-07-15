@@ -26,10 +26,12 @@ export const Settings: React.FC = () => {
     flashSaleSeconds: '55',
     flashSaleTitle: 'Exclusive Private Flash Sale',
     flashSaleSubtitle: 'Save up to 30% off selected leather garments and silk styles. Complimentary silk garment cover included.',
-    flashSaleImage: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop&q=80'
+    flashSaleImage: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop&q=80',
+    flashSaleProductId: 'luxe-3'
   });
 
   // Load and manage users list from localStorage
+  const [productsList, setProductsList] = useState<any[]>([]);
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -69,11 +71,19 @@ export const Settings: React.FC = () => {
             flashSaleSeconds: data.flash_sale_seconds || data.flashSaleSeconds || '55',
             flashSaleTitle: data.flash_sale_title || data.flashSaleTitle || 'Exclusive Private Flash Sale',
             flashSaleSubtitle: data.flash_sale_subtitle || data.flashSaleSubtitle || 'Save up to 30% off selected leather garments and silk styles. Complimentary silk garment cover included.',
-            flashSaleImage: data.flash_sale_image || data.flashSaleImage || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop&q=80'
+            flashSaleImage: data.flash_sale_image || data.flashSaleImage || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop&q=80',
+            flashSaleProductId: data.flash_sale_product_id || data.flashSaleProductId || 'luxe-3'
           });
         }
       })
       .catch(err => console.error('Failed to load store settings:', err));
+
+    fetch(`${API_BASE_URL}/api/admin/products`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setProductsList(data);
+      })
+      .catch(err => console.error('Failed to load products list:', err));
   }, []);
 
   const handleSave = (e: React.FormEvent) => {
@@ -91,7 +101,8 @@ export const Settings: React.FC = () => {
       flash_sale_seconds: generalForm.flashSaleSeconds,
       flash_sale_title: generalForm.flashSaleTitle,
       flash_sale_subtitle: generalForm.flashSaleSubtitle,
-      flash_sale_image: generalForm.flashSaleImage
+      flash_sale_image: generalForm.flashSaleImage,
+      flash_sale_product_id: generalForm.flashSaleProductId
     };
 
     fetch(`${API_BASE_URL}/api/admin/settings`, {
@@ -107,12 +118,22 @@ export const Settings: React.FC = () => {
       });
   };
 
+  const handleProductChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const prodId = e.target.value;
+    const selectedProd = productsList.find(p => p.id === prodId);
+    setGeneralForm(prev => ({
+      ...prev,
+      flashSaleProductId: prodId,
+      flashSaleImage: selectedProd && selectedProd.images && selectedProd.images[0] ? selectedProd.images[0] : prev.flashSaleImage
+    }));
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setGeneralForm(prev => ({ ...prev, flashSaleImage: reader.result as string }));
+        setGeneralForm(prev => ({ ...prev, flashSaleImage: reader.result as string, flashSaleProductId: '' }));
       };
       reader.readAsDataURL(file);
     }
@@ -292,6 +313,22 @@ export const Settings: React.FC = () => {
                   className="form-control"
                   placeholder="e.g. Exclusive Private Flash Sale"
                 />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label>Featured Flash Sale Product Selection</label>
+                <select
+                  value={generalForm.flashSaleProductId || ''}
+                  onChange={handleProductChange}
+                  className="form-control"
+                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                >
+                  <option value="">-- Choose Custom Product from Catalog --</option>
+                  {productsList.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} (SKU: {p.id})</option>
+                  ))}
+                </select>
+                <span className="help-text" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Selecting a product automatically populates its cover photo below.</span>
               </div>
 
               <div className="form-group" style={{ marginBottom: '16px' }}>

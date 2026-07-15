@@ -19,6 +19,7 @@ export const Home: React.FC = () => {
   const [flashTitle, setFlashTitle] = useState('Exclusive Private Flash Sale');
   const [flashSubtitle, setFlashSubtitle] = useState('Save up to 30% off selected leather garments and silk styles. Complimentary silk garment cover included.');
   const [flashImage, setFlashImage] = useState('https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop&q=80');
+  const [flashSaleProductId, setFlashSaleProductId] = useState('luxe-3');
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 34, seconds: 55 });
   const [dbBrands, setDbBrands] = useState<any[]>([]);
 
@@ -46,7 +47,7 @@ export const Home: React.FC = () => {
 
   const handleAccessPrivateSale = () => {
     if (isExpired) return;
-    const flashProduct = products.find(p => p.images && p.images[0] === flashImage) || products.find(p => p.id === 'luxe-3');
+    const flashProduct = products.find(p => p.id === flashSaleProductId) || products.find(p => p.images && p.images[0] === flashImage) || products.find(p => p.id === 'luxe-3');
     if (flashProduct) {
       addToCart(
         flashProduct,
@@ -85,6 +86,7 @@ export const Home: React.FC = () => {
           if (data.flash_sale_title) setFlashTitle(data.flash_sale_title);
           if (data.flash_sale_subtitle) setFlashSubtitle(data.flash_sale_subtitle);
           if (data.flash_sale_image) setFlashImage(data.flash_sale_image);
+          if (data.flash_sale_product_id) setFlashSaleProductId(data.flash_sale_product_id);
           
           const hours = parseInt(data.flash_sale_hours) || 4;
           const mins = parseInt(data.flash_sale_minutes) || 34;
