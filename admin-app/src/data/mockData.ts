@@ -18,6 +18,8 @@ export interface AdminProduct {
   dimensions: string;
   status: 'active' | 'draft' | 'archived';
   seoKeywords: string;
+  discount?: number;
+  occasion?: string;
 }
 
 export interface AdminCategory {
