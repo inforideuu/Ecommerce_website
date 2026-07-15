@@ -1,8 +1,13 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Search, ShieldAlert, X } from 'lucide-react';
 import type { AdminCustomer } from '../data/mockData';
 
-export const Customers: React.FC = () => {
+interface CustomersProps {
+  globalSearch?: string;
+}
+
+export const Customers: React.FC<CustomersProps> = ({ globalSearch = '' }) => {
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -32,7 +37,7 @@ export const Customers: React.FC = () => {
     e.preventDefault();
     if (!selectedCustomer) return;
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers/${selectedCustomer.id}`, {
+    fetch(`${API_BASE_URL}/api/admin/customers/${selectedCustomer.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(customerForm)
@@ -47,7 +52,7 @@ export const Customers: React.FC = () => {
   };
 
   const fetchCustomers = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/customers')
+    fetch(`${API_BASE_URL}/api/admin/customers`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch customers:', err));
@@ -73,9 +78,10 @@ export const Customers: React.FC = () => {
     }));
   };
 
-  const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCustomers = customers.filter(c => {
+    const activeSearch = globalSearch || searchQuery;
+    return c.name.toLowerCase().includes(activeSearch.toLowerCase()) || c.email.toLowerCase().includes(activeSearch.toLowerCase());
+  });
 
   return (
     <div className="admin-products-page">
@@ -129,7 +135,7 @@ export const Customers: React.FC = () => {
                     {/* <button
                       onClick={() => {
                         if (window.confirm(`Upgrade ${c.name} to VIP Gold Status?`)) {
-                          fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers/${c.id}`, {
+                          fetch(`${API_BASE_URL}/api/admin/customers/${c.id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ points: 10000, ordersCount: 10, status: c.status })

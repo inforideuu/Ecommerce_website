@@ -6,6 +6,7 @@ import type { Product } from '../data/products';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import './Search.css';
+import { API_BASE_URL } from '../config';
 
 export const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,7 +31,7 @@ export const Search: React.FC = () => {
 
   // Fetch products & brands
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);
@@ -38,7 +39,7 @@ export const Search: React.FC = () => {
       })
       .catch(err => console.error('Failed to fetch products:', err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
+    fetch(`${API_BASE_URL}/api/admin/brands`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -69,7 +70,7 @@ export const Search: React.FC = () => {
           p.name.toLowerCase().includes(q) ||
           p.brand.toLowerCase().includes(q) ||
           p.category.toLowerCase().includes(q) ||
-          p.fabric.toLowerCase().includes(q)
+          (p.fabric || p.material || '').toLowerCase().includes(q)
       );
     }
 
@@ -106,7 +107,7 @@ export const Search: React.FC = () => {
 
     // Fabric filter
     if (selectedFabric) {
-      result = result.filter(p => p.fabric.toLowerCase() === selectedFabric.toLowerCase());
+      result = result.filter(p => (p.fabric || p.material || '').toLowerCase() === selectedFabric.toLowerCase());
     }
 
     // Occasion filter
@@ -175,7 +176,7 @@ export const Search: React.FC = () => {
   };
 
   // Distinct properties in data for select inputs
-  const fabrics = Array.from(new Set(products.map(p => p.fabric).filter(Boolean)));
+  const fabrics = Array.from(new Set(products.map(p => p.fabric || p.material).filter(Boolean)));
   const occasions = Array.from(new Set(products.map(p => p.occasion).filter(Boolean)));
   // Color palette set
   const allColors = Array.from(new Set(products.flatMap(p => p.colors || []).filter(Boolean)));

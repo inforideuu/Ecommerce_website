@@ -61,14 +61,29 @@
   gap: 40px;
 }
 
-/* Filters Sidebar */
 .filters-sidebar {
   padding: 30px;
   border-radius: var(--radius-md);
   align-self: flex-start;
-  height: auto;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
   position: sticky;
   top: 100px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gold) transparent;
+}
+
+.filters-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filters-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filters-sidebar::-webkit-scrollbar-thumb {
+  background: var(--accent-gold);
+  border-radius: 2px;
 }
 
 .sidebar-header {
@@ -268,3 +283,17 @@
     justify-content: space-between;
   }
 }
+
+/* Fix product cards going out of frame by overriding Home.css flex styling */
+.search-results-grid .products-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 30px;
+  overflow-x: visible;
+  padding-bottom: 0;
+}
+
+.search-results-grid .products-grid-layout > * {
+  flex: none;
+}
+

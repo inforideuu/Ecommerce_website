@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Trash2, Edit, X, Award, Image as ImageIcon, 
@@ -28,7 +29,7 @@ export const Brands: React.FC = () => {
   const [brands, setBrands] = useState<BrandObject[]>([]);
 
   const fetchBrands = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
+    fetch(`${API_BASE_URL}/api/admin/brands`)
       .then(res => res.json())
       .then(data => setBrands(data))
       .catch(err => console.error(err));
@@ -138,7 +139,7 @@ export const Brands: React.FC = () => {
   const handleDelete = (id: string) => {
     const target = brands.find(b => b.id === id);
     if (target && window.confirm(`Remove design house partnership with ${target.name}?`)) {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/brands?id=${id}`, {
+      fetch(`${API_BASE_URL}/api/admin/brands?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -210,7 +211,7 @@ export const Brands: React.FC = () => {
       seoKeywords: formFields.seoKeywords
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands', {
+    fetch(`${API_BASE_URL}/api/admin/brands`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

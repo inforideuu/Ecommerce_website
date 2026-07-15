@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingBag, Heart, User, Sun, Moon, X, Menu, Trash2, ChevronRight, Sparkles, Bell } from 'lucide-react';
@@ -38,7 +39,7 @@ export const Navbar: React.FC = () => {
     if (!customer || !customer.email) return;
 
     const fetchNotifications = () => {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${customer.email}`)
+      fetch(`${API_BASE_URL}/api/orders?email=${customer.email}`)
         .then(res => res.json())
         .then(orders => {
           if (Array.isArray(orders)) {
@@ -154,14 +155,14 @@ export const Navbar: React.FC = () => {
   const [dbCategories, setDbCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch products for navbar:', err));
   }, []);
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
+    fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(data => setDbCategories(data))
       .catch(err => console.error('Failed to fetch categories for navbar:', err));

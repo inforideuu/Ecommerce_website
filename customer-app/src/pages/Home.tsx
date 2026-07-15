@@ -6,8 +6,11 @@ import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import { ScrollSequenceCanvas } from '../components/ScrollSequenceCanvas';
 import './Home.css';
+import { API_BASE_URL } from '../config';
+import { useCart } from '../context/CartContext';
 
 export const Home: React.FC = () => {
+  const { addToCart } = useCart();
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   
@@ -39,15 +42,31 @@ export const Home: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const isExpired = timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0;
+
+  const handleAccessPrivateSale = () => {
+    if (isExpired) return;
+    const flashProduct = products.find(p => p.images && p.images[0] === flashImage) || products.find(p => p.id === 'luxe-3');
+    if (flashProduct) {
+      addToCart(
+        flashProduct,
+        1,
+        flashProduct.colors && flashProduct.colors.length > 0 ? flashProduct.colors[0] : '#111827',
+        flashProduct.sizes && flashProduct.sizes.length > 0 ? flashProduct.sizes[0] : 'S'
+      );
+      alert(`${flashProduct.name} has been added to your shopping bag!`);
+    }
+  };
+
   const [dbCategories, setDbCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch products:', err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
+    fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -58,7 +77,7 @@ export const Home: React.FC = () => {
       .catch(err => console.error('Failed to fetch categories:', err));
 
     // Fetch marketing and settings configurations
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
+    fetch(`${API_BASE_URL}/api/admin/settings`)
       .then(res => res.json())
       .then(data => {
         if (data) {
@@ -75,7 +94,7 @@ export const Home: React.FC = () => {
       })
       .catch(err => console.error('Failed to load flash sale settings:', err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
+    fetch(`${API_BASE_URL}/api/admin/brands`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -84,7 +103,7 @@ export const Home: React.FC = () => {
       })
       .catch(err => console.error('Failed to fetch brands list:', err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews')
+    fetch(`${API_BASE_URL}/api/admin/reviews`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -232,9 +251,15 @@ export const Home: React.FC = () => {
                 </div>
               </div>
 
-              <Link to="/search?category=Sale" className="btn-premium btn-premium-gold">
-                Access Private Sale
-              </Link>
+              {isExpired ? (
+                <button className="btn-premium btn-premium-gold" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+                  Flash Sale Expired
+                </button>
+              ) : (
+                <button onClick={handleAccessPrivateSale} className="btn-premium btn-premium-gold">
+                  Access Private Sale
+                </button>
+              )}
             </div>
             
             <div className="flash-sale-image">

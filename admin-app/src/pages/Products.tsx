@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Trash2, Edit, Download, X, Filter, 
@@ -11,7 +12,11 @@ import './Products.css';
 
 
 
-export const Products: React.FC = () => {
+interface ProductsProps {
+  globalSearch?: string;
+}
+
+export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -23,12 +28,12 @@ export const Products: React.FC = () => {
   const activeBrands = dbBrands.length > 0 ? dbBrands.map(b => b.name) : BRANDS;
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
+    fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(data => setDbCategories(data))
       .catch(err => console.error(err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/brands')
+    fetch(`${API_BASE_URL}/api/admin/brands`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -111,7 +116,7 @@ export const Products: React.FC = () => {
   });
 
   const fetchProducts = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
+    fetch(`${API_BASE_URL}/api/admin/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch admin products:', err));
@@ -268,7 +273,7 @@ export const Products: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/products/${id}`, {
+      fetch(`${API_BASE_URL}/api/admin/products/${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -443,8 +448,8 @@ export const Products: React.FC = () => {
     };
 
     const targetUrl = editingProduct 
-      ? `https://ecommerce-website-hvuy.onrender.com/api/admin/products/${editingProduct.id}`
-      : 'https://ecommerce-website-hvuy.onrender.com/api/admin/products';
+      ? `${API_BASE_URL}/api/admin/products/${editingProduct.id}`
+      : `${API_BASE_URL}/api/admin/products`;
 
     const targetMethod = editingProduct ? 'PUT' : 'POST';
 
@@ -471,7 +476,8 @@ export const Products: React.FC = () => {
   };
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.sku.toLowerCase().includes(searchQuery.toLowerCase());
+    const activeSearch = globalSearch || searchQuery;
+    const matchesSearch = p.name.toLowerCase().includes(activeSearch.toLowerCase()) || p.sku.toLowerCase().includes(activeSearch.toLowerCase());
     const matchesCategory = selectedCategory ? p.category === selectedCategory : true;
     const matchesBrand = selectedBrand ? p.brand === selectedBrand : true;
     const matchesStatus = selectedStatus ? p.status === selectedStatus : true;

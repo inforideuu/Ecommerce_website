@@ -440,12 +440,31 @@
 }
 
 .reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  overflow-x: auto;
   gap: 24px;
+  padding: 15px 5px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-gold) transparent;
+}
+
+.reviews-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.reviews-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reviews-grid::-webkit-scrollbar-thumb {
+  background-color: var(--accent-gold);
+  border-radius: 3px;
 }
 
 .review-card {
+  flex: 0 0 350px;
   padding: 30px;
   border-radius: var(--radius-md);
   display: flex;
@@ -505,9 +524,7 @@
   .flash-sale-grid {
     grid-template-columns: 1fr;
   }
-  .reviews-grid {
-    grid-template-columns: 1fr;
-  }
+  /* .reviews-grid styling removed grid-template-columns */
 }
 
 .parallax-promo-banner {

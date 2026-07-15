@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle, ShieldAlert, Trash2 } from 'lucide-react';
 
@@ -23,7 +24,7 @@ export const Reviews: React.FC = () => {
   });
 
   const fetchReviews = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews')
+    fetch(`${API_BASE_URL}/api/admin/reviews`)
       .then(res => res.json())
       .then(data => {
         const mapped = data.map((r: any) => ({
@@ -58,7 +59,7 @@ export const Reviews: React.FC = () => {
       status: status
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews', {
+    fetch(`${API_BASE_URL}/api/admin/reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -73,7 +74,7 @@ export const Reviews: React.FC = () => {
 
   const deleteReview = (id: string) => {
     if (window.confirm('Are you sure you want to delete this review?')) {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/reviews?id=${id}`, {
+      fetch(`${API_BASE_URL}/api/admin/reviews?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -93,7 +94,7 @@ export const Reviews: React.FC = () => {
       status: formFields.status
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/reviews', {
+    fetch(`${API_BASE_URL}/api/admin/reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

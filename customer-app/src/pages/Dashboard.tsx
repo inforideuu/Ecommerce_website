@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
@@ -136,7 +137,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!activeHelpOrder) return;
     const poll = () => {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${activeHelpOrder.id}`)
+      fetch(`${API_BASE_URL}/api/support-messages?orderId=${activeHelpOrder.id}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data) && data.length > 0) {
@@ -152,7 +153,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!clientUser?.email) return;
     const fetchTickets = () => {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-tickets?email=${clientUser.email}`)
+      fetch(`${API_BASE_URL}/api/support-tickets?email=${clientUser.email}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -186,7 +187,7 @@ export const Dashboard: React.FC = () => {
     
     // Fetch orders for this email
     setLoadingOrders(true);
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${emailInput}`)
+    fetch(`${API_BASE_URL}/api/orders?email=${emailInput}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setOrders(data);
@@ -197,7 +198,7 @@ export const Dashboard: React.FC = () => {
         setLoadingOrders(false);
       });
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers`)
+    fetch(`${API_BASE_URL}/api/admin/customers`)
       .then(res => res.json())
       .then(custs => {
         const match = custs.find((c: any) => c.email.toLowerCase() === emailInput.toLowerCase());
@@ -217,7 +218,7 @@ export const Dashboard: React.FC = () => {
       
       // Fetch orders from MySQL backend
       setLoadingOrders(true);
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${parsed.email}`)
+      fetch(`${API_BASE_URL}/api/orders?email=${parsed.email}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -230,7 +231,7 @@ export const Dashboard: React.FC = () => {
           setLoadingOrders(false);
         });
 
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers`)
+      fetch(`${API_BASE_URL}/api/admin/customers`)
         .then(res => res.json())
         .then(custs => {
           const match = custs.find((c: any) => c.email.toLowerCase() === parsed.email.toLowerCase());
@@ -242,17 +243,17 @@ export const Dashboard: React.FC = () => {
     }
 
     // Fetch dynamic coupons & products
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
+    fetch(`${API_BASE_URL}/api/admin/coupons`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setCoupons(data); })
       .catch(err => console.error(err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
+    fetch(`${API_BASE_URL}/api/admin/products`)
       .then(res => res.json())
       .then(data => { if (Array.isArray(data)) setAllProducts(data); })
       .catch(err => console.error(err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
+    fetch(`${API_BASE_URL}/api/admin/settings`)
       .then(res => res.json())
       .then(data => {
         if (data) {
@@ -268,7 +269,7 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (activeTab === 'rewards' || activeTab === 'coupons') {
-      fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
+      fetch(`${API_BASE_URL}/api/admin/coupons`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) setCoupons(data);
@@ -530,7 +531,7 @@ export const Dashboard: React.FC = () => {
       }
     };
     
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${reviewOrder.id}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${reviewOrder.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reviews: updatedReviews })
@@ -540,7 +541,7 @@ export const Dashboard: React.FC = () => {
         const saved = localStorage.getItem('customerUser');
         if (saved) {
           const parsed = JSON.parse(saved);
-          fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${parsed.email}`)
+          fetch(`${API_BASE_URL}/api/orders?email=${parsed.email}`)
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setOrders(data); });
         }
@@ -556,7 +557,7 @@ export const Dashboard: React.FC = () => {
     const updatedReviews = { ...(order.reviews || {}) };
     delete updatedReviews[productId];
     
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${order.id}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${order.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reviews: updatedReviews })
@@ -566,7 +567,7 @@ export const Dashboard: React.FC = () => {
         const saved = localStorage.getItem('customerUser');
         if (saved) {
           const parsed = JSON.parse(saved);
-          fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${parsed.email}`)
+          fetch(`${API_BASE_URL}/api/orders?email=${parsed.email}`)
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setOrders(data); });
         }
@@ -593,7 +594,7 @@ export const Dashboard: React.FC = () => {
       } : null
     };
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${activeReturnOrder.id}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${activeReturnOrder.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ returnRequest: returnReq })
@@ -603,7 +604,7 @@ export const Dashboard: React.FC = () => {
         const saved = localStorage.getItem('customerUser');
         if (saved) {
           const parsed = JSON.parse(saved);
-          fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${parsed.email}`)
+          fetch(`${API_BASE_URL}/api/orders?email=${parsed.email}`)
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setOrders(data); });
         }
@@ -626,7 +627,7 @@ export const Dashboard: React.FC = () => {
       toSize: exchangeForm.toSize
     };
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${activeExchangeOrder.id}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${activeExchangeOrder.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ exchangeRequest: exchangeReq })
@@ -636,7 +637,7 @@ export const Dashboard: React.FC = () => {
         const saved = localStorage.getItem('customerUser');
         if (saved) {
           const parsed = JSON.parse(saved);
-          fetch(`https://ecommerce-website-hvuy.onrender.com/api/orders?email=${parsed.email}`)
+          fetch(`${API_BASE_URL}/api/orders?email=${parsed.email}`)
             .then(res => res.json())
             .then(data => { if (Array.isArray(data)) setOrders(data); });
         }
@@ -804,7 +805,7 @@ export const Dashboard: React.FC = () => {
     setChatInput('');
     
     // Save User message to Database
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
+    fetch(`${API_BASE_URL}/api/support-messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderId, sender: 'user', text: userMsg })
@@ -812,7 +813,7 @@ export const Dashboard: React.FC = () => {
       .then(res => res.json())
       .then(() => {
         // Refresh messages list
-        fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${orderId}`)
+        fetch(`${API_BASE_URL}/api/support-messages?orderId=${orderId}`)
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) setChatMessages(data.map((m: any) => ({ sender: m.sender as 'user' | 'agent', text: m.text })));
@@ -821,13 +822,13 @@ export const Dashboard: React.FC = () => {
         // Trigger premium automated concierge reply after 1 sec
         setTimeout(() => {
           const agentText = `Thank you for contacting VIP Concierge. We have logged your query for Order ${orderId}. A dedicated stylist advisor is reviewing your request.`;
-          fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
+          fetch(`${API_BASE_URL}/api/support-messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ orderId, sender: 'agent', text: agentText })
           })
             .then(() => {
-              fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${orderId}`)
+              fetch(`${API_BASE_URL}/api/support-messages?orderId=${orderId}`)
                 .then(res => res.json())
                 .then(data => {
                   if (Array.isArray(data)) setChatMessages(data.map((m: any) => ({ sender: m.sender as 'user' | 'agent', text: m.text })));
@@ -1337,13 +1338,13 @@ export const Dashboard: React.FC = () => {
                               <button className="action-card-btn" onClick={() => {
                                 setActiveHelpOrder(order);
                                 setChatMessages([]);
-                                fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${order.id}`)
+                                fetch(`${API_BASE_URL}/api/support-messages?orderId=${order.id}`)
                                   .then(res => res.json())
                                   .then(data => {
                                     if (Array.isArray(data)) {
                                       if (data.length === 0) {
                                         const welcomeText = `Welcome to VIP Concierge. How can we assist you with Order ${order.id} today?`;
-                                        fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
+                                        fetch(`${API_BASE_URL}/api/support-messages`, {
                                           method: 'POST',
                                           headers: { 'Content-Type': 'application/json' },
                                           body: JSON.stringify({ orderId: order.id, sender: 'agent', text: welcomeText })
@@ -1618,7 +1619,7 @@ export const Dashboard: React.FC = () => {
                         // Lock the approved ticket in the DB to close editing mode
                         const approvedTicket = supportTickets.find(t => t.status === 'Approved & Unlocked');
                         if (approvedTicket) {
-                          fetch('https://ecommerce-website-hvuy.onrender.com/api/support-tickets', {
+                          fetch(`${API_BASE_URL}/api/support-tickets`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ id: approvedTicket.id, status: 'Completed & Locked' })
@@ -2217,7 +2218,7 @@ export const Dashboard: React.FC = () => {
                 <button
                   onClick={() => {
                     if (!supportMessage.trim() || !clientUser) return;
-                    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-tickets', {
+                    fetch(`${API_BASE_URL}/api/support-tickets`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({

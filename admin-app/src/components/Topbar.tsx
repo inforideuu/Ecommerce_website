@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState } from 'react';
 import { Bell, MessageSquare, Sun, Moon, Search, Settings, Shield, Send } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
@@ -18,7 +19,12 @@ interface MessageItem {
   orderId?: string;
 }
 
-export const Topbar: React.FC = () => {
+interface TopbarProps {
+  globalSearch: string;
+  setGlobalSearch: (val: string) => void;
+}
+
+export const Topbar: React.FC<TopbarProps> = ({ globalSearch, setGlobalSearch }) => {
   const { theme, toggleTheme } = useTheme();
 
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
@@ -35,7 +41,7 @@ export const Topbar: React.FC = () => {
 
   React.useEffect(() => {
     const fetchActiveAlerts = () => {
-      fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/orders')
+      fetch(`${API_BASE_URL}/api/admin/orders`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -88,7 +94,7 @@ export const Topbar: React.FC = () => {
     };
 
     const fetchActiveMessages = () => {
-      fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages')
+      fetch(`${API_BASE_URL}/api/support-messages`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -135,7 +141,7 @@ export const Topbar: React.FC = () => {
     const target = messages.find(m => m.id === msgId);
     if (!target) return;
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
+    fetch(`${API_BASE_URL}/api/support-messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -158,7 +164,12 @@ export const Topbar: React.FC = () => {
       {/* Global Search Bar */}
       <div className="topbar-search-form">
         <Search size={18} className="search-icon" />
-        <input type="text" placeholder="Global search products, SKU, client orders..." />
+        <input 
+          type="text" 
+          placeholder="Global search products, SKU, client orders..." 
+          value={globalSearch}
+          onChange={e => setGlobalSearch(e.target.value)}
+        />
       </div>
 
       <div className="topbar-actions-row">
@@ -217,7 +228,7 @@ export const Topbar: React.FC = () => {
                           <button
                             onClick={() => {
                               if (window.confirm('Clear message history for this order?')) {
-                                fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${msg.orderId}`, {
+                                fetch(`${API_BASE_URL}/api/support-messages?orderId=${msg.orderId}`, {
                                   method: 'DELETE'
                                 })
                                   .then(() => {

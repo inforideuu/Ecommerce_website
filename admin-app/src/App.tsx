@@ -246,6 +246,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [globalSearch, setGlobalSearch] = useState('');
 
   // Manage Current User Authentication State
   const [currentUser, setCurrentUser] = useState<any>(() => {
@@ -279,16 +280,16 @@ const App: React.FC = () => {
         <Sidebar activeTab={filteredActiveTab} setActiveTab={setActiveTab} onLogout={handleLogout} userRole={currentUser?.role} />
 
         <div className="admin-main-wrapper" style={{ flex: '1', display: 'flex', flexDirection: 'column', minWidth: '0', marginLeft: '260px', padding: '0' }}>
-          <Topbar />
+          <Topbar globalSearch={globalSearch} setGlobalSearch={setGlobalSearch} />
 
           <main className="admin-main-content">
             {filteredActiveTab === 'dashboard' && <Dashboard />}
-            {filteredActiveTab === 'products' && <Products />}
+            {filteredActiveTab === 'products' && <Products globalSearch={globalSearch} />}
             {filteredActiveTab === 'categories' && <Categories />}
             {filteredActiveTab === 'brands' && <Brands />}
-            {filteredActiveTab === 'inventory' && <Inventory />}
-            {filteredActiveTab === 'orders' && <Orders />}
-            {filteredActiveTab === 'customers' && <Customers />}
+            {filteredActiveTab === 'inventory' && <Inventory globalSearch={globalSearch} />}
+            {filteredActiveTab === 'orders' && <Orders globalSearch={globalSearch} />}
+            {filteredActiveTab === 'customers' && <Customers globalSearch={globalSearch} />}
             {filteredActiveTab === 'reviews' && <Reviews />}
             {filteredActiveTab === 'coupons' && <Coupons />}
             {filteredActiveTab === 'analytics' && <Analytics />}

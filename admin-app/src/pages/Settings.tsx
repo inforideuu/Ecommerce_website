@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, DollarSign, Shield, UserPlus, Trash2 } from 'lucide-react';
 import './Settings.css';
@@ -51,7 +52,7 @@ export const Settings: React.FC = () => {
     }
 
     // Fetch backend settings
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
+    fetch(`${API_BASE_URL}/api/admin/settings`)
       .then(res => res.json())
       .then(data => {
         if (data && Object.keys(data).length > 0) {
@@ -93,7 +94,7 @@ export const Settings: React.FC = () => {
       flash_sale_image: generalForm.flashSaleImage
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings', {
+    fetch(`${API_BASE_URL}/api/admin/settings`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

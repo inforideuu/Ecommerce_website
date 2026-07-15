@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Plus, Ticket, Trash2, X } from 'lucide-react';
 
@@ -26,7 +27,7 @@ export const Coupons: React.FC = () => {
   });
 
   const fetchCoupons = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
+    fetch(`${API_BASE_URL}/api/admin/coupons`)
       .then(res => res.json())
       .then(data => {
         const mapped = data.map((c: any) => ({
@@ -63,7 +64,7 @@ export const Coupons: React.FC = () => {
       usageCount: 0
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons', {
+    fetch(`${API_BASE_URL}/api/admin/coupons`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -87,7 +88,7 @@ export const Coupons: React.FC = () => {
 
   const deleteCoupon = (id: string) => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/coupons?id=${id}`, {
+      fetch(`${API_BASE_URL}/api/admin/coupons?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())

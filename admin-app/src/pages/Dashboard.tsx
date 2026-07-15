@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React from 'react';
 import { DollarSign, ShoppingBag, Users, Layers, TrendingUp, AlertTriangle, Star, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -10,17 +11,17 @@ export const Dashboard: React.FC = () => {
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
+    fetch(`${API_BASE_URL}/api/admin/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch admin products:', err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/orders')
+    fetch(`${API_BASE_URL}/api/admin/orders`)
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(err => console.error('Failed to fetch admin orders:', err));
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/customers')
+    fetch(`${API_BASE_URL}/api/admin/customers`)
       .then(res => res.json())
       .then(data => setCustomers(data))
       .catch(err => console.error('Failed to fetch admin customers:', err));

@@ -1,14 +1,19 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Search, AlertTriangle, Layers } from 'lucide-react';
 import type { AdminProduct } from '../data/mockData';
 
-export const Inventory: React.FC = () => {
+interface InventoryProps {
+  globalSearch?: string;
+}
+
+export const Inventory: React.FC<InventoryProps> = ({ globalSearch = '' }) => {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStockStatus, setSelectedStockStatus] = useState('');
 
   const fetchProducts = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/products')
+    fetch(`${API_BASE_URL}/api/admin/products`)
       .then(res => res.json())
       .then(data => setProducts(data))
       .catch(err => console.error('Failed to fetch inventory:', err));
@@ -25,7 +30,7 @@ export const Inventory: React.FC = () => {
     // Optimistic state update
     setProducts(products.map(p => p.id === id ? { ...p, stock: Math.max(0, newStock) } : p));
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/products/${id}`, {
+    fetch(`${API_BASE_URL}/api/admin/products/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...product, stock: Math.max(0, newStock) })
@@ -36,7 +41,8 @@ export const Inventory: React.FC = () => {
   };
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.sku.toLowerCase().includes(searchQuery.toLowerCase());
+    const activeSearch = globalSearch || searchQuery;
+    const matchesSearch = p.name.toLowerCase().includes(activeSearch.toLowerCase()) || p.sku.toLowerCase().includes(activeSearch.toLowerCase());
     
     let matchesStock = true;
     if (selectedStockStatus === 'low') {

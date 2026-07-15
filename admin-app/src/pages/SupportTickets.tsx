@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Crown, ShieldAlert, MessageCircle } from 'lucide-react';
 
@@ -15,7 +16,7 @@ export const SupportTickets: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchTickets = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-tickets')
+    fetch(`${API_BASE_URL}/api/support-tickets`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -34,7 +35,7 @@ export const SupportTickets: React.FC = () => {
   }, []);
 
   const handleUpdateStatus = (id: string, newStatus: string) => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-tickets', {
+    fetch(`${API_BASE_URL}/api/support-tickets`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: newStatus })

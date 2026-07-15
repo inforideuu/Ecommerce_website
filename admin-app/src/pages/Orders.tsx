@@ -1,9 +1,14 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Filter, FileText, X } from 'lucide-react';
 import type { AdminOrder } from '../data/mockData';
 import './Orders.css';
 
-export const Orders: React.FC = () => {
+interface OrdersProps {
+  globalSearch?: string;
+}
+
+export const Orders: React.FC<OrdersProps> = ({ globalSearch = '' }) => {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -16,7 +21,7 @@ export const Orders: React.FC = () => {
   useEffect(() => {
     if (!activeOrder) return;
     const fetchChat = () => {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${activeOrder.id}`)
+      fetch(`${API_BASE_URL}/api/support-messages?orderId=${activeOrder.id}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) setChatMessages(data);
@@ -29,7 +34,7 @@ export const Orders: React.FC = () => {
   }, [activeOrder]);
 
   const fetchOrders = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/orders')
+    fetch(`${API_BASE_URL}/api/admin/orders`)
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(err => console.error('Failed to fetch orders:', err));
@@ -43,7 +48,7 @@ export const Orders: React.FC = () => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, paymentStatus: order.paymentStatus, trackingNumber: order.trackingNumber })
@@ -68,7 +73,7 @@ export const Orders: React.FC = () => {
       returnRequest = { ...order.returnRequest, status: 'Refund Completed' };
     }
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -95,7 +100,7 @@ export const Orders: React.FC = () => {
     const adminMsg = chatInput;
     setChatInput('');
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/support-messages', {
+    fetch(`${API_BASE_URL}/api/support-messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -106,7 +111,7 @@ export const Orders: React.FC = () => {
     })
       .then(res => res.json())
       .then(() => {
-        fetch(`https://ecommerce-website-hvuy.onrender.com/api/support-messages?orderId=${activeOrder.id}`)
+        fetch(`${API_BASE_URL}/api/support-messages?orderId=${activeOrder.id}`)
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) setChatMessages(data);
@@ -122,7 +127,7 @@ export const Orders: React.FC = () => {
     const updatedReturnRequest = { ...order.returnRequest, status: returnStatus };
     const payStatus = returnStatus === 'Refund Completed' ? 'refunded' : order.paymentStatus;
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ returnRequest: updatedReturnRequest, paymentStatus: payStatus })
@@ -144,7 +149,7 @@ export const Orders: React.FC = () => {
 
     const updatedExchangeRequest = { ...order.exchangeRequest, status: exchangeStatus };
 
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${orderId}`, {
+    fetch(`${API_BASE_URL}/api/admin/orders/${orderId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ exchangeRequest: updatedExchangeRequest })
@@ -161,7 +166,8 @@ export const Orders: React.FC = () => {
   };
 
   const filteredOrders = orders.filter(o => {
-    const matchesSearch = o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || o.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const activeSearch = globalSearch || searchQuery;
+    const matchesSearch = o.customerName.toLowerCase().includes(activeSearch.toLowerCase()) || o.id.toLowerCase().includes(activeSearch.toLowerCase());
     const matchesStatus = selectedStatus ? o.status === selectedStatus : true;
     return matchesSearch && matchesStatus;
   });
@@ -324,7 +330,7 @@ export const Orders: React.FC = () => {
                   </div>
                   <button
                     onClick={() => {
-                      fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/orders/${activeOrder.id}`, {
+                      fetch(`${API_BASE_URL}/api/admin/orders/${activeOrder.id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Heart, ShoppingBag, Truck, RotateCcw, ShieldCheck, Mail, Share2, Ruler } from 'lucide-react';
@@ -24,7 +25,7 @@ export const ProductDetails: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`https://ecommerce-website-hvuy.onrender.com/api/products/${id}`)
+    fetch(`${API_BASE_URL}/api/products/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Product not found');
         return res.json();
@@ -35,12 +36,12 @@ export const ProductDetails: React.FC = () => {
         if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
         
         // Fetch reviews
-        fetch(`https://ecommerce-website-hvuy.onrender.com/api/products/${id}/reviews`)
+        fetch(`${API_BASE_URL}/api/products/${id}/reviews`)
           .then(res => res.json())
           .then(revs => { if (Array.isArray(revs)) setReviewsList(revs); })
           .catch(err => console.error(err));
 
-        return fetch(`https://ecommerce-website-hvuy.onrender.com/api/products?category=${data.category}`);
+        return fetch(`${API_BASE_URL}/api/products?category=${data.category}`);
       })
       .then(res => res ? res.json() : [])
       .then(allCategoryProducts => {

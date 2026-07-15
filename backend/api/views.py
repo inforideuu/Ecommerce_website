@@ -595,17 +595,29 @@ def calculate_product_rating(product_id):
     return 0.0, 0
 
 # Helper to format Product objects to standard client JSON
-def format_product(p):
-    dynamic_rating, dynamic_count = calculate_product_rating(p.id)
-    if dynamic_count > 0:
-        final_rating = dynamic_rating
-        final_count = dynamic_count
-    elif p.reviewsCount > 0:
-        final_rating = p.rating
-        final_count = p.reviewsCount
+def format_product(p, ratings_map=None):
+    if ratings_map is not None:
+        ratings = ratings_map.get(p.id, [])
+        if ratings:
+            final_rating = round(sum(ratings) / len(ratings), 1)
+            final_count = len(ratings)
+        elif p.reviewsCount > 0:
+            final_rating = p.rating
+            final_count = p.reviewsCount
+        else:
+            final_rating = 0.0
+            final_count = 0
     else:
-        final_rating = 0.0
-        final_count = 0
+        dynamic_rating, dynamic_count = calculate_product_rating(p.id)
+        if dynamic_count > 0:
+            final_rating = dynamic_rating
+            final_count = dynamic_count
+        elif p.reviewsCount > 0:
+            final_rating = p.rating
+            final_count = p.reviewsCount
+        else:
+            final_rating = 0.0
+            final_count = 0
 
     return {
         "id": p.id,
@@ -623,6 +635,7 @@ def format_product(p):
         "sizes": json.loads(p.sizes or "[]"),
         "colors": json.loads(p.colors or "[]"),
         "material": p.material,
+        "fabric": p.material,
         "stock": p.stock,
         "weight": p.weight,
         "dimensions": p.dimensions,
@@ -710,14 +723,49 @@ def get_products(request):
     if best_seller == 'true':
         qs = qs.filter(bestSeller=1)
         
-    return JsonResponse([format_product(p) for p in qs], safe=False)
+    # Bulk prefetch product ratings from orders to avoid N+1 query database timeouts
+    ratings_map = {}
+    try:
+        orders_qs = Order.objects.exclude(reviews__isnull=True).exclude(reviews="")
+        for o in orders_qs:
+            try:
+                rev_dict = json.loads(o.reviews) if isinstance(o.reviews, str) else o.reviews
+                if isinstance(rev_dict, dict):
+                    for prod_id, rev_data in rev_dict.items():
+                        rating = int(rev_data.get("rating", 5))
+                        if prod_id not in ratings_map:
+                            ratings_map[prod_id] = []
+                        ratings_map[prod_id].append(rating)
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    return JsonResponse([format_product(p, ratings_map) for p in qs], safe=False)
 
 @csrf_exempt
 def get_admin_products(request):
     check_and_seed()
     if request.method == 'GET':
         qs = Product.objects.all()
-        return JsonResponse([format_product(p) for p in qs], safe=False)
+        # Bulk prefetch product ratings
+        ratings_map = {}
+        try:
+            orders_qs = Order.objects.exclude(reviews__isnull=True).exclude(reviews="")
+            for o in orders_qs:
+                try:
+                    rev_dict = json.loads(o.reviews) if isinstance(o.reviews, str) else o.reviews
+                    if isinstance(rev_dict, dict):
+                        for prod_id, rev_data in rev_dict.items():
+                            rating = int(rev_data.get("rating", 5))
+                            if prod_id not in ratings_map:
+                                ratings_map[prod_id] = []
+                            ratings_map[prod_id].append(rating)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        return JsonResponse([format_product(p, ratings_map) for p in qs], safe=False)
     elif request.method == 'POST':
         try:
             body = json.loads(request.body)
@@ -735,7 +783,7 @@ def get_admin_products(request):
                 sku=body.get('sku', f"SKU-{p_id.upper()}"),
                 barcode=body.get('barcode', str(random.randint(100000000000, 999999999999))),
                 description=body.get('description', ''),
-                material=body.get('material', ''),
+                material=body.get('material') or body.get('fabric') or '',
                 stock=int(body.get('stock', 0)),
                 inStock=1 if int(body.get('stock', 0)) > 0 else 0,
                 weight=float(body.get('weight', 0.0)),
@@ -784,7 +832,7 @@ def modify_product(request, product_id):
             p.sku = body.get('sku', p.sku)
             p.barcode = body.get('barcode', p.barcode)
             p.description = body.get('description', p.description)
-            p.material = body.get('material', p.material)
+            p.material = body.get('material') or body.get('fabric') or p.material
             p.stock = int(body.get('stock', p.stock))
             p.inStock = 1 if p.stock > 0 else 0
             p.weight = float(body.get('weight', p.weight))

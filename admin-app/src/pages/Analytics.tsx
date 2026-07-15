@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, DollarSign, ShoppingCart, Users, Package } from 'lucide-react';
 
@@ -5,7 +6,7 @@ export const Analytics: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/analytics')
+    fetch(`${API_BASE_URL}/api/admin/analytics`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error(err));

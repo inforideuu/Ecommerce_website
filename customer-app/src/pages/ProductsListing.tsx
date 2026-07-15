@@ -8,6 +8,7 @@ import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import type { Product } from '../data/products';
 import './ProductsListing.css';
+import { API_BASE_URL } from '../config';
 
 export const ProductsListing: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -36,7 +37,7 @@ export const ProductsListing: React.FC = () => {
   // Fetch Products based on URL query
   useEffect(() => {
     setLoading(true);
-    const url = `https://ecommerce-website-hvuy.onrender.com/api/products?gender=${gender}&subcategory=${subcategory}`;
+    const url = `${API_BASE_URL}/api/products?gender=${gender}&subcategory=${subcategory}`;
     fetch(url)
       .then(res => res.json())
       .then(data => {

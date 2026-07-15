@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Trash2, Edit, X, FolderOpen, Image as ImageIcon, 
@@ -47,7 +48,7 @@ export const Categories: React.FC = () => {
   });
 
   const fetchCategories = () => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories')
+    fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Failed to fetch categories:', err));
@@ -144,7 +145,7 @@ export const Categories: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Delete category? This action removes catalog structures.')) {
-      fetch(`https://ecommerce-website-hvuy.onrender.com/api/categories?id=${id}`, {
+      fetch(`${API_BASE_URL}/api/categories?id=${id}`, {
         method: 'DELETE'
       })
         .then(res => res.json())
@@ -206,7 +207,7 @@ export const Categories: React.FC = () => {
       image: formFields.thumbnail
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/categories', {
+    fetch(`${API_BASE_URL}/api/categories`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

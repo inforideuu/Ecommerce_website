@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowRight, ShieldCheck, Ticket, Sparkles } from 'lucide-react';
@@ -15,7 +16,7 @@ export const Cart: React.FC = () => {
   const [dbCoupons, setDbCoupons] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
+    fetch(`${API_BASE_URL}/api/admin/coupons`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDbCoupons(data);

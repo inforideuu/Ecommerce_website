@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CreditCard, CheckCircle2, Landmark, Wallet, QrCode, Truck, AlertCircle } from 'lucide-react';
@@ -109,7 +110,7 @@ export const Checkout: React.FC = () => {
   const [taxRateSetting, setTaxRateSetting] = useState(18); // Default to 18%
 
   useEffect(() => {
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/settings')
+    fetch(`${API_BASE_URL}/api/admin/settings`)
       .then(res => res.json())
       .then(data => {
         if (data && (data.tax_rate || data.taxRate)) {
@@ -130,7 +131,7 @@ export const Checkout: React.FC = () => {
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return;
     setCouponError('');
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/admin/coupons')
+    fetch(`${API_BASE_URL}/api/admin/coupons`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -191,7 +192,7 @@ export const Checkout: React.FC = () => {
       }))
     };
 
-    fetch('https://ecommerce-website-hvuy.onrender.com/api/orders', {
+    fetch(`${API_BASE_URL}/api/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
@@ -210,13 +211,13 @@ export const Checkout: React.FC = () => {
             localStorage.setItem('customer_supercoins', nextCoins.toString());
 
             // Save to backend database
-            fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers`)
+            fetch(`${API_BASE_URL}/api/admin/customers`)
               .then(res => res.json())
               .then(custs => {
                 if (Array.isArray(custs)) {
                   const match = custs.find((c: any) => c.email.toLowerCase() === shippingForm.email.toLowerCase());
                   if (match) {
-                    fetch(`https://ecommerce-website-hvuy.onrender.com/api/admin/customers/${match.id}`, {
+                    fetch(`${API_BASE_URL}/api/admin/customers/${match.id}`, {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
