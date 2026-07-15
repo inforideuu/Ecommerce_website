@@ -119,13 +119,16 @@ export const ProductsListing: React.FC = () => {
     // Material Filter
     if (selectedMaterials.length > 0) {
       const desc = (p.description || '').toLowerCase();
-      if (!selectedMaterials.some(m => desc.includes(m.toLowerCase()))) return false;
+      const mat = (p.material || '').toLowerCase();
+      if (!selectedMaterials.some(m => desc.includes(m.toLowerCase()) || mat.includes(m.toLowerCase()))) return false;
     }
 
     // Fit Filter
     if (selectedFits.length > 0) {
       const desc = (p.description || '').toLowerCase();
-      if (!selectedFits.some(f => desc.includes(f.toLowerCase()))) return false;
+      const parsedDetails = Array.isArray(p.details) ? p.details : [];
+      const fitDetail = parsedDetails.find((d: string) => d.startsWith('Fit: '))?.toLowerCase() || '';
+      if (!selectedFits.some(f => desc.includes(f.toLowerCase()) || fitDetail.includes(f.toLowerCase()))) return false;
     }
 
     // Rating Filter

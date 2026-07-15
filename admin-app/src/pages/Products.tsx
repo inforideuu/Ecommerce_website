@@ -231,6 +231,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
     let neckVal = '';
     let seasonVal = '';
     let countryVal = '';
+    let ageGroupVal = '';
 
     parsedDetails.forEach((det: string) => {
       if (det.startsWith('Fabric: ')) fabricVal = det.replace('Fabric: ', '');
@@ -240,6 +241,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       else if (det.startsWith('Neck: ')) neckVal = det.replace('Neck: ', '');
       else if (det.startsWith('Season: ')) seasonVal = det.replace('Season: ', '');
       else if (det.startsWith('Made in ')) countryVal = det.replace('Made in ', '');
+      else if (det.startsWith('Age Group: ')) ageGroupVal = det.replace('Age Group: ', '');
     });
 
     setFormFields({
@@ -271,7 +273,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       occasion: p.occasion || 'Evening',
       season: seasonVal || p.season || 'Autumn/Winter',
       gender: p.gender || 'Women',
-      ageGroup: p.ageGroup || 'Adults',
+      ageGroup: ageGroupVal || p.ageGroup || 'Adults',
       countryOfOrigin: countryVal || p.countryOfOrigin || 'Italy',
       weight: p.weight || 0.5,
       length: p.length || 30,
@@ -466,7 +468,8 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
         `Sleeve: ${formFields.sleeveType}`,
         `Neck: ${formFields.neckType}`,
         `Season: ${formFields.season}`,
-        `Made in ${formFields.countryOfOrigin}`
+        `Made in ${formFields.countryOfOrigin}`,
+        `Age Group: ${formFields.ageGroup}`
       ]
     };
 
