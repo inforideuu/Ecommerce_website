@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Trash2, Edit, Download, X, Filter, 
   FileText, Image as ImageIcon, Layers, DollarSign, 
-  Activity, Tag, Truck, Globe, Check, Eye, Save, Sparkles, UploadCloud 
+  Activity, Tag, Globe, Check, Eye, Save, Sparkles, UploadCloud 
 } from 'lucide-react';
 import { BRANDS, CATEGORY_NAMES } from '../data/mockData';
 import type { AdminProduct } from '../data/mockData';
