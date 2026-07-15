@@ -27,8 +27,12 @@ export interface AdminCategory {
   name: string;
   parentCategory: string;
   slug: string;
-  status: 'active' | 'inactive';
+  status: string;
   image: string;
+  sortOrder?: number;
+  featured?: boolean;
+  showOnHomepage?: boolean;
+  description?: string;
 }
 
 export interface AdminOrder {

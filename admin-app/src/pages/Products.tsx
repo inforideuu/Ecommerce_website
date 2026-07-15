@@ -222,6 +222,25 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
     const parsedImages = Array.isArray(p.images) ? p.images : JSON.parse(p.images || '[]');
     const parsedSizes = Array.isArray(p.sizes) ? p.sizes : JSON.parse(p.sizes || '[]');
     const parsedColors = Array.isArray(p.colors) ? p.colors : JSON.parse(p.colors || '[]');
+    const parsedDetails = Array.isArray(p.details) ? p.details : [];
+
+    let fabricVal = '';
+    let fitVal = '';
+    let patternVal = '';
+    let sleeveVal = '';
+    let neckVal = '';
+    let seasonVal = '';
+    let countryVal = '';
+
+    parsedDetails.forEach((det: string) => {
+      if (det.startsWith('Fabric: ')) fabricVal = det.replace('Fabric: ', '');
+      else if (det.startsWith('Fit: ')) fitVal = det.replace('Fit: ', '');
+      else if (det.startsWith('Pattern: ')) patternVal = det.replace('Pattern: ', '');
+      else if (det.startsWith('Sleeve: ')) sleeveVal = det.replace('Sleeve: ', '');
+      else if (det.startsWith('Neck: ')) neckVal = det.replace('Neck: ', '');
+      else if (det.startsWith('Season: ')) seasonVal = det.replace('Season: ', '');
+      else if (det.startsWith('Made in ')) countryVal = det.replace('Made in ', '');
+    });
 
     setFormFields({
       name: p.name || '',
@@ -244,16 +263,16 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       colors: parsedColors,
       customColor: '#d4af37',
       material: p.material || 'Silk',
-      fabric: p.fabric || 'Crepe de Chine',
-      fit: p.fit || 'Regular Fit',
-      pattern: p.pattern || 'Solid Color',
-      sleeveType: p.sleeveType || 'Long Sleeve',
-      neckType: p.neckType || 'V-Neck',
+      fabric: fabricVal || p.fabric || 'Crepe de Chine',
+      fit: fitVal || p.fit || 'Regular Fit',
+      pattern: patternVal || p.pattern || 'Solid Color',
+      sleeveType: sleeveVal || p.sleeveType || 'Long Sleeve',
+      neckType: neckVal || p.neckType || 'V-Neck',
       occasion: p.occasion || 'Evening',
-      season: p.season || 'Autumn/Winter',
+      season: seasonVal || p.season || 'Autumn/Winter',
       gender: p.gender || 'Women',
       ageGroup: p.ageGroup || 'Adults',
-      countryOfOrigin: p.countryOfOrigin || 'Italy',
+      countryOfOrigin: countryVal || p.countryOfOrigin || 'Italy',
       weight: p.weight || 0.5,
       length: p.length || 30,
       width: p.width || 20,

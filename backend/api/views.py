@@ -970,7 +970,7 @@ def categories(request):
                 "image": body.get("image", ""),
                 "featured": bool(body.get("featured", False)),
                 "showOnHomepage": bool(body.get("showOnHomepage", False)),
-                "sortOrder": int(body.get("sortOrder", 0)),
+                "sortOrder": int(body.get("sortOrder") or 0),
                 "description": body.get("description", "")
             })
             

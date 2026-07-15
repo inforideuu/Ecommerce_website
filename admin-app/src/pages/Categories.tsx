@@ -50,7 +50,12 @@ export const Categories: React.FC = () => {
   const fetchCategories = () => {
     fetch(`${API_BASE_URL}/api/categories`)
       .then(res => res.json())
-      .then(data => setCategories(data))
+      .then(data => {
+        if (Array.isArray(data)) {
+          const sorted = data.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+          setCategories(sorted);
+        }
+      })
       .catch(err => console.error('Failed to fetch categories:', err));
   };
 
