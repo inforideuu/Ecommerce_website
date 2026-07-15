@@ -32,6 +32,7 @@ export const Settings: React.FC = () => {
 
   // Load and manage users list from localStorage
   const [productsList, setProductsList] = useState<any[]>([]);
+  const [productFilterQuery, setProductFilterQuery] = useState('');
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -317,6 +318,14 @@ export const Settings: React.FC = () => {
 
               <div className="form-group" style={{ marginBottom: '16px' }}>
                 <label>Featured Flash Sale Product Selection</label>
+                <input
+                  type="text"
+                  placeholder="Type to search product by name or SKU..."
+                  value={productFilterQuery}
+                  onChange={e => setProductFilterQuery(e.target.value)}
+                  className="form-control"
+                  style={{ marginBottom: '8px', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                />
                 <select
                   value={generalForm.flashSaleProductId || ''}
                   onChange={handleProductChange}
@@ -324,9 +333,15 @@ export const Settings: React.FC = () => {
                   style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                 >
                   <option value="">-- Choose Custom Product from Catalog --</option>
-                  {productsList.map(p => (
-                    <option key={p.id} value={p.id}>{p.name} (SKU: {p.id})</option>
-                  ))}
+                  {productsList
+                    .filter(p => 
+                      p.name.toLowerCase().includes(productFilterQuery.toLowerCase()) || 
+                      p.id.toLowerCase().includes(productFilterQuery.toLowerCase())
+                    )
+                    .map(p => (
+                      <option key={p.id} value={p.id}>{p.name} (SKU: {p.id})</option>
+                    ))
+                  }
                 </select>
                 <span className="help-text" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Selecting a product automatically populates its cover photo below.</span>
               </div>
