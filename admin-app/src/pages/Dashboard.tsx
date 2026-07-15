@@ -9,6 +9,7 @@ export const Dashboard: React.FC = () => {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/admin/products`)
@@ -25,6 +26,16 @@ export const Dashboard: React.FC = () => {
       .then(res => res.json())
       .then(data => setCustomers(data))
       .catch(err => console.error('Failed to fetch admin customers:', err));
+
+    fetch(`${API_BASE_URL}/api/admin/reviews`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const approved = data.filter((r: any) => r.status === 'approved' || r.status === 'active');
+          setReviews(approved.slice(0, 5));
+        }
+      })
+      .catch(err => console.error('Failed to fetch reviews:', err));
   }, []);
 
   // Statistics totals calculations
@@ -45,7 +56,10 @@ export const Dashboard: React.FC = () => {
           const qty = Number(item.quantity) || 1;
           const amount = price * qty;
           
-          const gender = (item.gender || item.category || '').toLowerCase();
+          const productDetail = products.find(p => p.id === item.id);
+          const category = productDetail ? productDetail.category : (item.gender || item.category || '');
+          const gender = category.toLowerCase();
+          
           if (gender.includes('women') || gender.includes('female')) {
             womenSales += amount;
           } else if (gender.includes('men') || gender.includes('male')) {
@@ -97,9 +111,18 @@ export const Dashboard: React.FC = () => {
     monthlyRevenueMap[month] = (monthlyRevenueMap[month] || 0) + o.total;
   });
 
-  const monthKeys = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-  const activeMonths = monthKeys.filter(m => (monthlyRevenueMap[m] || 0) > 0);
-  const displayMonths = activeMonths.length >= 3 ? activeMonths : ['Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+  const getRollingMonths = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+    const list = [];
+    for (let i = 4; i >= 0; i--) {
+      let mIdx = currentMonth - i;
+      if (mIdx < 0) mIdx += 12;
+      list.push(months[mIdx]);
+    }
+    return list;
+  };
+  const displayMonths = getRollingMonths();
   
   const points = displayMonths.map((m, idx) => ({
     month: m,
@@ -121,6 +144,61 @@ export const Dashboard: React.FC = () => {
   }
   const fillD = pathD ? `${pathD} L 500 200 L 0 200 Z` : '';
 
+  const handleGenerateReport = () => {
+    const totalOrders = orders.length;
+    const totalRevenueVal = orders.reduce((sum, o) => sum + (o.paymentStatus === 'paid' ? o.total : 0), 0);
+    const totalProducts = products.length;
+    const lowStockCount = products.filter(p => p.stock > 0 && p.stock <= 10).length;
+    const outOfStockCount = products.filter(p => p.stock === 0).length;
+    const totalCustomers = customers.length;
+    
+    const reportText = `ZENELAIT HAUTE COUTURE - MONTHLY ADMINISTRATIVE REPORT
+Generated on: ${new Date().toLocaleString()}
+
+=========================================
+MARKET PERFORMANCE SUMMARY
+=========================================
+Total Revenue: ₹${totalRevenueVal.toLocaleString()}
+Total Orders Fulfillments: ${totalOrders}
+Average Order Value (AOV): ₹${totalOrders > 0 ? Math.round(totalRevenueVal / totalOrders).toLocaleString() : 0}
+Total Registered Customers: ${totalCustomers}
+
+=========================================
+CATALOG & INVENTORY HEALTH
+=========================================
+Total Unique Designs: ${totalProducts}
+Low Stock Alert Warnings: ${lowStockCount}
+Out of Stock Products: ${outOfStockCount}
+Active Catalog Value: ₹${products.reduce((sum, p) => sum + (p.price * p.stock), 0).toLocaleString()}
+
+=========================================
+SYSTEM ALERTS
+=========================================
+Active Returns Requested: ${orders.filter(o => {
+      try {
+        const ret = typeof o.returnRequest === 'string' ? JSON.parse(o.returnRequest) : o.returnRequest;
+        return ret && ret.status === 'Return Requested';
+      } catch(e) { return false; }
+    }).length}
+Active Exchanges Requested: ${orders.filter(o => {
+      try {
+        const exc = typeof o.exchangeRequest === 'string' ? JSON.parse(o.exchangeRequest) : o.exchangeRequest;
+        return exc && exc.status === 'Exchange Requested';
+      } catch(e) { return false; }
+    }).length}
+
+End of Report.
+`;
+
+    const element = document.createElement("a");
+    const file = new Blob([reportText], {type: 'text/plain;charset=utf-8'});
+    element.href = URL.createObjectURL(file);
+    element.download = `monthly_report_${new Date().toISOString().slice(0, 7)}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   return (
     <div className="admin-dashboard-page">
       <div className="dashboard-title-row">
@@ -128,7 +206,7 @@ export const Dashboard: React.FC = () => {
           <h1 className="serif-text">Business Analytics</h1>
           <p className="subtitle">Real-time metrics, revenue performance, and inventory analysis.</p>
         </div>
-        <button onClick={() => alert('Report generated.')} className="btn-admin btn-admin-primary">
+        <button onClick={handleGenerateReport} className="btn-admin btn-admin-primary">
           Generate Monthly Report
         </button>
       </div>
@@ -300,25 +378,21 @@ export const Dashboard: React.FC = () => {
             <Star size={16} className="text-gold" />
           </div>
           <div className="widget-reviews-list">
-            <div className="widget-review-item">
-              <div className="review-meta">
-                <strong>Scarlett Johansson</strong>
-                <div className="stars-row">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={10} fill="var(--accent-gold)" color="var(--accent-gold)" />)}
+            {reviews.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', marginTop: '20px' }}>No client reviews found.</p>
+            ) : (
+              reviews.map((rev, idx) => (
+                <div key={idx} className="widget-review-item">
+                  <div className="review-meta">
+                    <strong>{rev.customerName || rev.name || 'Anonymous Client'}</strong>
+                    <div className="stars-row">
+                      {[...Array(rev.rating || 5)].map((_, i) => <Star key={i} size={10} fill="var(--accent-gold)" color="var(--accent-gold)" />)}
+                    </div>
+                  </div>
+                  <p>"{rev.comment}"</p>
                 </div>
-              </div>
-              <p>"The evening gown fits like a dream. Absolutely love the silk texture."</p>
-            </div>
-
-            <div className="widget-review-item">
-              <div className="review-meta">
-                <strong>Aria Montgomery</strong>
-                <div className="stars-row">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={10} fill="var(--accent-gold)" color="var(--accent-gold)" />)}
-                </div>
-              </div>
-              <p>"The double breasted cashmere overcoat was delivered inside signature white-glove packaging. Outstanding."</p>
-            </div>
+              ))
+            )}
           </div>
         </div>
       </div>

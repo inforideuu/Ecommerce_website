@@ -484,6 +484,36 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
     return matchesSearch && matchesCategory && matchesBrand && matchesStatus;
   });
 
+  const handleExportCSV = () => {
+    if (products.length === 0) {
+      alert("No products to export.");
+      return;
+    }
+    const headers = ["ID", "Name", "SKU", "Category", "Brand", "Price", "Discount", "Stock", "Status", "Material", "Occasion"];
+    const rows = products.map(p => [
+      p.id,
+      `"${p.name.replace(/"/g, '""')}"`,
+      p.sku || '',
+      p.category,
+      p.brand,
+      p.price,
+      p.discount || 0,
+      p.stock,
+      p.status,
+      p.material || '',
+      p.occasion || ''
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `products_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // --- RENDER DEDICATED REDESIGNED ADD/EDIT PRODUCT PAGE ---
   if (isFormOpen) {
     return (
@@ -1325,7 +1355,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
         </div>
         
         <div className="action-buttons-group">
-          <button onClick={() => alert('Products list exported to CSV.')} className="btn-admin btn-admin-secondary">
+          <button onClick={handleExportCSV} className="btn-admin btn-admin-secondary">
             <Download size={14} /> Export CSV
           </button>
           <button onClick={handleOpenAddForm} className="btn-admin btn-admin-primary">
