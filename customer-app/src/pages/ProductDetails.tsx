@@ -1,7 +1,7 @@
 import { API_BASE_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingBag, Truck, RotateCcw, ShieldCheck, Mail, Share2, Ruler } from 'lucide-react';
+import { Star, Heart, ShoppingBag, Truck, RotateCcw, ShieldCheck, Mail, Share2, Ruler, Play } from 'lucide-react';
 import type { Product } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { ProductCard } from '../components/ProductCard';
@@ -117,15 +117,26 @@ export const ProductDetails: React.FC = () => {
         <div className="details-gallery">
           <div
             className="main-image-wrapper"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
+            onMouseMove={activeImageIdx === -1 ? undefined : handleMouseMove}
+            onMouseLeave={activeImageIdx === -1 ? undefined : handleMouseLeave}
+            style={activeImageIdx === -1 ? { background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' } : {}}
           >
-            <img
-              src={product.images[activeImageIdx]}
-              alt={product.name}
-              className="details-main-img"
-              style={zoomStyle}
-            />
+            {activeImageIdx === -1 ? (
+              <video
+                src={product.videoUrl}
+                controls
+                autoPlay
+                loop
+                style={{ width: '100%', maxHeight: '450px', objectFit: 'contain' }}
+              />
+            ) : (
+              <img
+                src={product.images[activeImageIdx]}
+                alt={product.name}
+                className="details-main-img"
+                style={zoomStyle}
+              />
+            )}
           </div>
 
           <div className="thumbnail-carousel">
@@ -138,6 +149,18 @@ export const ProductDetails: React.FC = () => {
                 <img src={img} alt={`thumb ${idx}`} />
               </button>
             ))}
+            {product.videoUrl && (
+              <button
+                className={`thumb-btn ${activeImageIdx === -1 ? 'thumb-active' : ''}`}
+                onClick={() => setActiveImageIdx(-1)}
+                style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', overflow: 'hidden' }}
+              >
+                <div style={{ position: 'absolute', color: 'var(--accent-gold)', zIndex: 2 }}>
+                  <Play size={20} fill="var(--accent-gold)" />
+                </div>
+                {product.images[0] && <img src={product.images[0]} alt="video thumbnail" style={{ opacity: 0.4 }} />}
+              </button>
+            )}
           </div>
         </div>
 

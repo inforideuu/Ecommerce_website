@@ -25,6 +25,7 @@ export interface Product {
   material: string;
   categoryGroup?: string;
   subcategory?: string;
+  videoUrl?: string;
 }
 
 export const PRODUCTS: Product[] = [

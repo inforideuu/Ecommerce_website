@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Trash2, Edit, Download, X, Filter, 
   FileText, Image as ImageIcon, Layers, DollarSign, 
-  Activity, Tag, Globe, Check, Eye, Save, Sparkles, UploadCloud 
+  Activity, Tag, Globe, Check, Eye, Save, Sparkles, UploadCloud, Video as VideoIcon
 } from 'lucide-react';
 import { BRANDS, CATEGORY_NAMES } from '../data/mockData';
 import type { AdminProduct } from '../data/mockData';
@@ -56,6 +56,10 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Video upload simulator states
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
+  const [isVideoUploading, setIsVideoUploading] = useState(false);
+
   // Form fields
   const [formFields, setFormFields] = useState({
     name: '',
@@ -76,6 +80,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
     
     // Images
     images: [] as string[],
+    videoUrl: '',
     
     // Variants
     sizes: [] as string[],
@@ -183,6 +188,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       images: [
         'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80'
       ],
+      videoUrl: '',
       sizes: ['S', 'M', 'L'],
       colors: ['#D4AF37', '#111827'],
       customColor: '#d4af37',
@@ -261,6 +267,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       lowStockAlert: p.lowStockAlert || 10,
       status: p.status || 'active',
       images: parsedImages,
+      videoUrl: p.videoUrl || '',
       sizes: parsedSizes,
       colors: parsedColors,
       customColor: '#d4af37',
@@ -339,6 +346,40 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
         }, 300);
       } else {
         setUploadProgress(progress);
+      }
+    }, 150);
+  };
+
+  // Video Upload Handler (Base64 conversion)
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsVideoUploading(true);
+    setVideoUploadProgress(10);
+
+    let progress = 10;
+    const interval = setInterval(() => {
+      progress += 30;
+      if (progress >= 100) {
+        clearInterval(interval);
+        setVideoUploadProgress(100);
+        
+        setTimeout(() => {
+          const file = files[0];
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64Str = reader.result as string;
+            setFormFields(prevFields => ({
+              ...prevFields,
+              videoUrl: base64Str
+            }));
+            setIsVideoUploading(false);
+          };
+          reader.readAsDataURL(file);
+        }, 300);
+      } else {
+        setVideoUploadProgress(progress);
       }
     }, 150);
   };
@@ -443,6 +484,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
       barcode: formFields.barcode,
       description: formFields.description,
       images: formFields.images,
+      videoUrl: formFields.videoUrl,
       sizes: formFields.sizes,
       colors: formFields.colors,
       material: formFields.material,
@@ -799,6 +841,77 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
                       )}
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Section 2.5: Product Video */}
+            <div className="premium-card glass-card">
+              <div className="card-header-row">
+                <VideoIcon size={18} />
+                <div>
+                  <h3>Product Video (Optional)</h3>
+                  <p>Add a premium video showcase for the product catalog card or details page</p>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px' }}>Video URL</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter raw video URL (e.g., https://example.com/video.mp4)"
+                  value={formFields.videoUrl}
+                  onChange={e => setFormFields({ ...formFields, videoUrl: e.target.value })}
+                />
+              </div>
+
+              <div className="dropzone-box" style={{ cursor: 'default', marginTop: '16px' }}>
+                <input 
+                  type="file" 
+                  id="product-video-upload" 
+                  style={{ display: 'none' }} 
+                  onChange={handleVideoFileChange}
+                  accept="video/*"
+                />
+                <button 
+                  type="button" 
+                  className="btn-admin btn-admin-primary" 
+                  onClick={() => document.getElementById('product-video-upload')?.click()}
+                  style={{ marginBottom: '10px' }}
+                >
+                  Choose Video File
+                </button>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Supports MP4, WebM formats. Maximum duration 30s recommended</p>
+                
+                {isVideoUploading && (
+                  <div style={{ marginTop: '16px', width: '100%' }}>
+                    <div style={{ background: 'var(--bg-tertiary)', height: '4px', width: '200px', margin: '0 auto', borderRadius: '2px', overflow: 'hidden' }}>
+                      <div style={{ background: 'var(--accent-gold)', height: '100%', width: `${videoUploadProgress}%`, transition: 'width 0.15s ease' }} />
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-gold)', marginTop: '4px', display: 'block' }}>Uploading video... {videoUploadProgress}%</span>
+                  </div>
+                )}
+              </div>
+
+              {formFields.videoUrl && (
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                  <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Video Preview</label>
+                  <div style={{ position: 'relative', width: '100%', maxWidth: '360px', margin: '0 auto', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--accent-gold)' }}>
+                    <video 
+                      src={formFields.videoUrl} 
+                      controls 
+                      style={{ width: '100%', maxHeight: '200px', display: 'block' }}
+                    />
+                    <button 
+                      type="button" 
+                      className="img-remove-btn" 
+                      onClick={() => setFormFields({ ...formFields, videoUrl: '' })}
+                      style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

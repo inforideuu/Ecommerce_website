@@ -35,6 +35,7 @@ class Product(models.Model):
     subcategory = models.CharField(max_length=100, null=True, blank=True)
     productType = models.CharField(max_length=100, null=True, blank=True)
     details = models.TextField(default="[]") # Stringified JSON array
+    videoUrl = models.TextField(null=True, blank=True)
 
 class Category(models.Model):
     id = models.CharField(max_length=100, primary_key=True)

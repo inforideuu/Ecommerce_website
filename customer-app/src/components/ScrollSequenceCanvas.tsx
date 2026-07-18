@@ -279,19 +279,6 @@ export const ScrollSequenceCanvas: React.FC<ScrollSequenceCanvasProps> = ({
 
   return (
     <div ref={containerRef} className="scroll-sequence-container">
-      {/* Preloader overlay (displayed until first frame is loaded) */}
-      {!isLoaded && (
-        <div className="sequence-loader-screen glass-panel">
-          <div className="loader-box-content">
-            <span className="serif-text loader-brand">zenelait</span>
-            <div className="progress-bar-track">
-              <div className="progress-bar-fill" style={{ width: `${loadProgress}%` }} />
-            </div>
-            <p className="progress-percentage-label">Preloading Collection Reveal: {loadProgress}%</p>
-          </div>
-        </div>
-      )}
-
       {/* Render Canvas (Starts drawing as soon as First Frame is preloaded) */}
       {isFirstFrameLoaded && <canvas ref={canvasRef} className="sequence-canvas" />}
 

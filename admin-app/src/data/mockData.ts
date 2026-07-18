@@ -20,6 +20,7 @@ export interface AdminProduct {
   seoKeywords: string;
   discount?: number;
   occasion?: string;
+  videoUrl?: string;
 }
 
 export interface AdminCategory {

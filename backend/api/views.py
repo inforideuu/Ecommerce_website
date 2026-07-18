@@ -673,6 +673,7 @@ def format_product(p, ratings_map=None):
         "subcategory": p.subcategory or "",
         "productType": p.productType or "",
         "details": json.loads(p.details or "[]"),
+        "videoUrl": p.videoUrl or "",
     }
 
 # --- REST VIEWS ---
@@ -833,6 +834,7 @@ def get_admin_products(request):
                 sizes=json.dumps(body.get('sizes', ['S', 'M', 'L'])),
                 colors=json.dumps(body.get('colors', ['#ffffff'])),
                 details=json.dumps(body.get('details', [])),
+                videoUrl=body.get('videoUrl', ''),
                 seoKeywords=json.dumps({
                     "slug": body.get("slug", ""),
                     "seoTitle": body.get("seoTitle", ""),
@@ -893,6 +895,8 @@ def modify_product(request, product_id):
                 p.colors = json.dumps(body['colors'])
             if 'details' in body:
                 p.details = json.dumps(body['details'])
+            if 'videoUrl' in body:
+                p.videoUrl = body['videoUrl']
                 
             existing_slug = ""
             existing_title = ""
