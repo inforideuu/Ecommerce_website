@@ -36,7 +36,6 @@ export const ScrollSequenceCanvas: React.FC<ScrollSequenceCanvasProps> = ({
   // Component State (used only for preloader UX)
   const [isFirstFrameLoaded, setIsFirstFrameLoaded] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [loadProgress, setLoadProgress] = useState(0);
 
   // Helper: Normalize folder path structure
   const getImageUrl = (index: number) => {
@@ -120,7 +119,6 @@ export const ScrollSequenceCanvas: React.FC<ScrollSequenceCanvasProps> = ({
     const preloadRemainingFrames = () => {
       // Set initial progress reflecting the first frame loading
       loadedCount = 1;
-      setLoadProgress(Math.round((1 / totalFrames) * 100));
 
       for (let i = 2; i <= totalFrames; i++) {
         const img = new Image();
@@ -143,8 +141,6 @@ export const ScrollSequenceCanvas: React.FC<ScrollSequenceCanvasProps> = ({
 
     const handleFrameLoaded = () => {
       loadedCount++;
-      const percent = Math.round((loadedCount / totalFrames) * 100);
-      setLoadProgress(percent);
 
       if (loadedCount === totalFrames && active) {
         setIsLoaded(true);
