@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { PRODUCTS } from '../data/products';
 import type { Product } from '../data/products';
 import './ProductsListing.css';
 import { API_BASE_URL } from '../config';
@@ -14,8 +15,9 @@ export const ProductsListing: React.FC = () => {
   const [searchParams] = useSearchParams();
   const gender = searchParams.get('gender') || 'men';
   const subcategory = searchParams.get('subcategory') || '';
+  const categoryParam = searchParams.get('category') || '';
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
   const [loading, setLoading] = useState(true);
   const [selectedQuickView, setSelectedQuickView] = useState<Product | null>(null);
 
@@ -53,14 +55,31 @@ export const ProductsListing: React.FC = () => {
     fetch(url)
       .then(res => res.json())
       .then(data => {
-        setProducts(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        } else {
+          // Fallback to local PRODUCTS filtering
+          let filtered = PRODUCTS;
+          if (categoryParam) {
+            filtered = filtered.filter(p => p.category === categoryParam || p.subcategory === categoryParam || (p.categoryGroup && p.categoryGroup === categoryParam));
+          }
+          if (subcategory) {
+            filtered = filtered.filter(p => p.subcategory?.toLowerCase() === subcategory.toLowerCase());
+          }
+          setProducts(filtered.length > 0 ? filtered : PRODUCTS);
+        }
         setLoading(false);
       })
       .catch(err => {
         console.error('Failed to fetch PLP products:', err);
+        let filtered = PRODUCTS;
+        if (categoryParam) {
+          filtered = filtered.filter(p => p.category === categoryParam || p.subcategory === categoryParam);
+        }
+        setProducts(filtered.length > 0 ? filtered : PRODUCTS);
         setLoading(false);
       });
-  }, [gender, subcategory]);
+  }, [gender, subcategory, categoryParam]);
 
   // Extract unique brands, sizes, colors, and materials from the fetched dataset for dynamic filters
   const uniqueBrands = Array.from(new Set(products.map(p => p.brand).filter(Boolean)));
@@ -171,7 +190,7 @@ export const ProductsListing: React.FC = () => {
         <div className="plp-header-row">
           <div>
             <h1 className="serif-text capitalize">
-              {gender}'s {subcategory ? subcategory.replace(/-/g, ' ') : 'Collection'}
+              {categoryParam ? categoryParam : (subcategory ? subcategory.replace(/-/g, ' ') : "Men's Luxury Collection")}
             </h1>
             <p className="plp-count">
               {loading ? 'Discovering garments...' : `${filteredProducts.length} items found`}

@@ -175,9 +175,12 @@ export const Navbar: React.FC = () => {
       .catch(err => console.error('Failed to fetch categories for navbar:', err));
   }, []);
 
+  const [isAtZero, setIsAtZero] = useState(true);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      setIsAtZero(window.scrollY === 0);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -202,8 +205,8 @@ export const Navbar: React.FC = () => {
       <header className={`navbar-header ${isScrolled ? 'navbar-scrolled' : ''}`}>
         <div className="container navbar-container">
           {/* Logo */}
-          <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/ecomlogo.png" alt="ZENELAIT Logo" style={{ height: '120px', objectFit: 'contain' }} />
+          <Link to="/" className={`navbar-logo ${isAtZero ? 'logo-glow' : ''}`} style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/ecomlogo.png" alt="ZENELAIT Logo" style={{ height: '140px', objectFit: 'contain' }} />
           </Link>
 
           {/* Nav Links */}
@@ -262,9 +265,11 @@ export const Navbar: React.FC = () => {
               })
             ) : (
               <>
-                <Link to="/products?gender=men" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Men</Link>
-                <Link to="/products?gender=women" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Women</Link>
-                <Link to="/products?gender=kids" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Kids</Link>
+                <Link to="/products?category=Suits%20%26%20Blazers" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Suits & Blazers</Link>
+                <Link to="/products?category=Outerwear" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Outerwear</Link>
+                <Link to="/products?category=Shirts%20%26%20Polo" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Shirts & Polo</Link>
+                <Link to="/products?category=Footwear" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Footwear</Link>
+                <Link to="/products?category=Accessories" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Accessories</Link>
               </>
             )}
 

@@ -34,6 +34,8 @@ interface OrderItem {
   price: number;
   name?: string;
   size?: string;
+  image?: string;
+  images?: string[];
 }
 
 interface ClientOrder {
@@ -974,23 +976,42 @@ export const Dashboard: React.FC = () => {
                 ) : (() => {
                   const latest = orders[0];
                   return (
-                    <div className="glass-panel" style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div className="glass-panel" style={{ padding: '14px 18px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
                         <div>
-                          <h4 style={{ margin: '0 0 2px 0', fontSize: '0.95rem' }}>Order ID: <span className="text-gold">{latest.id}</span></h4>
+                          <h4 style={{ margin: '0 0 2px 0', fontSize: '0.9rem' }}>Order ID: <span className="text-gold" style={{ fontFamily: 'monospace' }}>{latest.id}</span></h4>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Placed on {latest.date}</span>
                         </div>
                         <span className={`order-status-badge status-${latest.status.toLowerCase()}`}>{latest.status}</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '12px' }}>
+
+                      {/* Item Preview with Thumbnail */}
+                      {latest.items && latest.items.length > 0 && (
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                          {latest.items.slice(0, 3).map((item, iIdx) => {
+                            const itemImg = item.image || (item.images && item.images[0]) || allProducts.find(p => p.id === item.productId || p.name === item.name)?.images?.[0] || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=200";
+                            return (
+                              <div key={iIdx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <img src={itemImg} alt={item.name || 'Product'} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
+                                <div style={{ fontSize: '0.75rem' }}>
+                                  <div style={{ fontWeight: 500, maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name || 'Product'}</div>
+                                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem' }}>Qty: {item.quantity}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '10px' }}>
                         <span>Total amount paid: <strong>₹{latest.total}</strong></span>
                         <span>Payment: <strong>{latest.paymentStatus}</strong></span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px' }}>
-                        <button className="btn-premium btn-premium-primary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setTrackingOrder(latest)}>
+                        <button className="btn-premium btn-premium-primary" style={{ padding: '5px 12px', fontSize: '0.75rem' }} onClick={() => setTrackingOrder(latest)}>
                           Track Shipment
                         </button>
-                        <button className="btn-premium btn-premium-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => setActiveTab('orders')}>
+                        <button className="btn-premium btn-premium-secondary" style={{ padding: '5px 12px', fontSize: '0.75rem' }} onClick={() => setActiveTab('orders')}>
                           View Order
                         </button>
                       </div>
@@ -1076,7 +1097,7 @@ export const Dashboard: React.FC = () => {
                   />
                 </div>
                 
-                <div className="orders-timeline" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <div className="orders-timeline" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {loadingOrders ? (
                     <p className="text-secondary text-center">Querying secure transactions database...</p>
                   ) : orders.length === 0 ? (
@@ -1092,14 +1113,14 @@ export const Dashboard: React.FC = () => {
                     const countdown = getReturnCountdown(order.deliveryDate);
 
                     return (
-                      <div key={order.id} className="order-history-card glass-panel" style={{ padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <div key={order.id} className="order-history-card glass-panel" style={{ padding: '16px 20px', borderRadius: '16px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {/* Order Header */}
-                        <div className="order-header-row" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                        <div className="order-header-row" style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
                           <div>
                             <h4 style={{ margin: 0 }}>Order ID: <span className="text-gold" style={{ fontFamily: 'monospace' }}>{order.id}</span></h4>
                             <span className="order-date" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Placed on {order.date}</span>
                             {isDelivered && (
-                              <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                              <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                                 📦 Delivered on: <strong>{order.deliveryDate || order.date}</strong>
                               </p>
                             )}
@@ -1107,7 +1128,7 @@ export const Dashboard: React.FC = () => {
                           
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             {isDelivered && (
-                              <span className={`status-badge ${countdown.status === 'eligible' ? 'badge-success animate-pulse' : countdown.status === 'last_day' ? 'badge-warning animate-pulse' : 'badge-danger'}`} style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
+                              <span className={`status-badge ${countdown.status === 'eligible' ? 'badge-success animate-pulse' : countdown.status === 'last_day' ? 'badge-warning animate-pulse' : 'badge-danger'}`} style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
                                 {countdown.status === 'eligible' && `Return Available: ${countdown.text}`}
                                 {countdown.status === 'last_day' && countdown.text}
                                 {countdown.status === 'closed' && 'Return Period Expired'}
@@ -1120,18 +1141,27 @@ export const Dashboard: React.FC = () => {
                         </div>
 
                         {/* Order Items */}
-                        <div className="order-items-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className="order-items-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                           {order.items && order.items.map((item, idx) => {
+                            const itemImage = item.image || (item.images && item.images[0]) || allProducts.find(p => String(p.id) === String(item.productId) || p.name === item.name)?.images?.[0] || 'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=400&q=80';
+
                             return (
-                              <div key={idx} className="order-item-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', paddingBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                                <div>
-                                  <span style={{ fontWeight: 500 }}>{item.name || 'Designer Wardrobe Piece'}</span>
-                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                                    Size: <strong>{item.size || 'M'}</strong> | Qty: <strong>{item.quantity}</strong> | Price: <strong>₹{item.price}</strong>
+                              <div key={idx} className="order-item-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', paddingBottom: '8px', borderBottom: idx < (order.items?.length || 0) - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <img
+                                    src={itemImage}
+                                    alt={item.name || 'Product Image'}
+                                    style={{ width: '52px', height: '52px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}
+                                  />
+                                  <div>
+                                    <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{item.name || 'Designer Wardrobe Piece'}</span>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                                      Size: <strong>{item.size || 'M'}</strong> | Qty: <strong>{item.quantity}</strong> | Price: <strong>₹{item.price}</strong>
+                                    </div>
                                   </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                  <strong>₹{item.price * item.quantity}</strong>
+                                  <strong style={{ fontSize: '0.95rem' }}>₹{item.price * item.quantity}</strong>
                                 </div>
                               </div>
                             );

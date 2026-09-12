@@ -554,7 +554,7 @@ export const Categories: React.FC = () => {
 
               <div className="form-group">
                 <label>Keywords</label>
-                <input type="text" className="form-control" placeholder="e.g. gowns, evening wear, silk wrap" value={formFields.seoKeywords} onChange={e => setFormFields({ ...formFields, seoKeywords: e.target.value })} />
+                <input type="text" className="form-control" placeholder="e.g. suits, outerwear, mens wear, leather jacket" value={formFields.seoKeywords} onChange={e => setFormFields({ ...formFields, seoKeywords: e.target.value })} />
               </div>
             </div>
 

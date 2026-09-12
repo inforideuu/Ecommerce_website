@@ -10,13 +10,7 @@ print(f"Found {subcats.count()} subcategories.")
 
 # Helper to find department name
 def get_dept(gp_id):
-    if gp_id.startswith('gp-m'):
-        return 'Men'
-    elif gp_id.startswith('gp-w'):
-        return 'Women'
-    elif gp_id.startswith('gp-k'):
-        return 'Kids'
-    return 'General'
+    return 'Men'
 
 # Mock images by category/dept
 mock_images = {

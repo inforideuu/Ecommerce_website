@@ -625,7 +625,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
                 <input
                   type="text"
                   className={`form-control ${errors.name ? 'input-error' : ''}`}
-                  placeholder="e.g. Silk Wrap Evening Gown"
+                  placeholder="e.g. Italian Silk Tailored Tuxedo"
                   value={formFields.name}
                   onChange={e => handleNameChange(e.target.value)}
                   required
@@ -1268,7 +1268,7 @@ export const Products: React.FC<ProductsProps> = ({ globalSearch = '' }) => {
                     <input 
                       type="text" 
                       className="form-control" 
-                      placeholder="e.g. silk gown, formal dress, women designer wear"
+                      placeholder="e.g. men tuxedo, wool suit, designer blazer"
                       value={formFields.seoKeywords} 
                       onChange={e => setFormFields({ ...formFields, seoKeywords: e.target.value })} 
                     />

@@ -302,11 +302,19 @@ export const ProductDetails: React.FC = () => {
           <div className="product-specifications">
             <h3>Garment Specifications</h3>
             <ul>
-              {product.details.map((det, idx) => (
-                <li key={idx}>{det}</li>
-              ))}
-              <li>Material: <span>{product.material}</span></li>
-              <li>Occasion mapping: <span>{product.occasion}</span></li>
+              {Array.isArray(product.details) && product.details.map((det: any, idx: number) => {
+                let detailText = '';
+                if (typeof det === 'string') {
+                  detailText = det;
+                } else if (typeof det === 'object' && det !== null) {
+                  detailText = Object.entries(det)
+                    .map(([key, val]) => `${key}: ${val}`)
+                    .join(' - ');
+                }
+                return detailText ? <li key={idx}>{detailText}</li> : null;
+              })}
+              {product.material && <li>Material: <span>{product.material}</span></li>}
+              {product.occasion && <li>Occasion mapping: <span>{product.occasion}</span></li>}
             </ul>
           </div>
         </div>

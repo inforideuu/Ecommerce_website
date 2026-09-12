@@ -38,10 +38,10 @@ export const Footer: React.FC = () => {
         <div className="footer-links-col">
           <h3>Shop Collection</h3>
           <ul>
-            <li><Link to="/search?category=New Arrivals">New Arrivals</Link></li>
-            <li><Link to="/search?category=Men">Men's Wardrobe</Link></li>
-            <li><Link to="/search?category=Women">Women's Gowns</Link></li>
-            <li><Link to="/search?category=Kids">Kids Apparel</Link></li>
+            <li><Link to="/search?category=New%20Arrivals">New Arrivals</Link></li>
+            <li><Link to="/search?category=Suits%20%26%20Blazers">Suits & Tailoring</Link></li>
+            <li><Link to="/search?category=Outerwear">Outerwear & Overcoats</Link></li>
+            <li><Link to="/search?category=Footwear">Handcrafted Footwear</Link></li>
             <li><Link to="/search?category=Sale">Exclusive Sales</Link></li>
           </ul>
         </div>

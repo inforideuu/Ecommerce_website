@@ -42,10 +42,11 @@ export const Dashboard: React.FC = () => {
   const totalRevenue = orders.reduce((acc, o) => acc + (o.paymentStatus === 'paid' ? o.total : 0), 0);
   const lowStockProducts = products.filter(p => p.stock <= 10).length;
 
-  // Dynamic Category Sales calculation
-  let womenSales = 0;
-  let menSales = 0;
-  let kidsSales = 0;
+  // Dynamic Category Sales calculation for Men's Luxury Store
+  let suitsSales = 0;
+  let outerwearSales = 0;
+  let footwearSales = 0;
+  let accessoriesSales = 0;
 
   orders.forEach(o => {
     try {
@@ -57,29 +58,27 @@ export const Dashboard: React.FC = () => {
           const amount = price * qty;
           
           const productDetail = products.find(p => p.id === item.id);
-          const category = productDetail ? productDetail.category : (item.gender || item.category || '');
-          const gender = category.toLowerCase();
+          const subcat = (productDetail?.subcategory || item.subcategory || item.name || '').toLowerCase();
           
-          if (gender.includes('women') || gender.includes('female')) {
-            womenSales += amount;
-          } else if (gender.includes('men') || gender.includes('male')) {
-            menSales += amount;
-          } else if (gender.includes('kid') || gender.includes('child') || gender.includes('baby')) {
-            kidsSales += amount;
+          if (subcat.includes('suit') || subcat.includes('blazer')) {
+            suitsSales += amount;
+          } else if (subcat.includes('coat') || subcat.includes('jacket') || subcat.includes('outerwear')) {
+            outerwearSales += amount;
+          } else if (subcat.includes('shoe') || subcat.includes('boot') || subcat.includes('footwear')) {
+            footwearSales += amount;
           } else {
-            womenSales += amount * 0.6;
-            menSales += amount * 0.3;
-            kidsSales += amount * 0.1;
+            accessoriesSales += amount;
           }
         });
       }
     } catch (e) {}
   });
 
-  const grandTotal = womenSales + menSales + kidsSales || 1;
-  const womenPct = Math.round((womenSales / grandTotal) * 100) || 60;
-  const menPct = Math.round((menSales / grandTotal) * 100) || 30;
-  const kidsPct = 100 - womenPct - menPct;
+  const grandTotal = suitsSales + outerwearSales + footwearSales + accessoriesSales;
+  const suitsPct = grandTotal > 0 ? Math.round((suitsSales / grandTotal) * 100) : 0;
+  const outerwearPct = grandTotal > 0 ? Math.round((outerwearSales / grandTotal) * 100) : 0;
+  const footwearPct = grandTotal > 0 ? Math.round((footwearSales / grandTotal) * 100) : 0;
+  const accessoriesPct = grandTotal > 0 ? 100 - suitsPct - outerwearPct - footwearPct : 0;
 
   // Monthly Revenue Line Chart calculation
   const monthlyRevenueMap: { [key: string]: number } = {};
@@ -317,28 +316,32 @@ End of Report.
           <div className="donut-chart-box">
             <svg width="150" height="150" viewBox="0 0 36 36" className="donut-svg">
               <circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--bg-tertiary)" strokeWidth="3" />
-              {/* Women Segment */}
+              {/* Suits & Blazers */}
               <circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--accent-indigo)" strokeWidth="3"
-                strokeDasharray={`${womenPct} ${100 - womenPct}`} strokeDashoffset="25" />
-              {/* Men Segment */}
+                strokeDasharray={`${suitsPct} ${100 - suitsPct}`} strokeDashoffset="25" />
+              {/* Outerwear */}
               <circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--accent-emerald)" strokeWidth="3"
-                strokeDasharray={`${menPct} ${100 - menPct}`} strokeDashoffset={`${25 - womenPct}`} />
-              {/* Kids Segment */}
+                strokeDasharray={`${outerwearPct} ${100 - outerwearPct}`} strokeDashoffset={`${25 - suitsPct}`} />
+              {/* Footwear */}
               <circle cx="18" cy="18" r="15.91" fill="none" stroke="var(--accent-blue)" strokeWidth="3"
-                strokeDasharray={`${kidsPct} ${100 - kidsPct}`} strokeDashoffset={`${25 - womenPct - menPct}`} />
+                strokeDasharray={`${footwearPct} ${100 - footwearPct}`} strokeDashoffset={`${25 - suitsPct - outerwearPct}`} />
             </svg>
             <div className="donut-legend">
               <div className="legend-row">
                 <span className="legend-dot bg-indigo"></span>
-                <span>Women ({womenPct}%)</span>
+                <span>Suits & Blazers ({suitsPct}%)</span>
               </div>
               <div className="legend-row">
                 <span className="legend-dot bg-emerald"></span>
-                <span>Men ({menPct}%)</span>
+                <span>Outerwear ({outerwearPct}%)</span>
               </div>
               <div className="legend-row">
                 <span className="legend-dot bg-blue"></span>
-                <span>Kids ({kidsPct}%)</span>
+                <span>Footwear ({footwearPct}%)</span>
+              </div>
+              <div className="legend-row">
+                <span className="legend-dot" style={{ backgroundColor: '#f59e0b' }}></span>
+                <span>Accessories ({accessoriesPct}%)</span>
               </div>
             </div>
           </div>

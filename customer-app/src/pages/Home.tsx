@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
   const [dbBrands, setDbBrands] = useState<any[]>([]);
 
   const defaultReviews = [
-    { name: 'Aria Montgomery', rating: 5, comment: 'Absolutely stunned by the silk wrap evening gown. The drape is incredibly fluid and fits like a custom couture piece.', role: 'Vogue Contributor' },
+    { name: 'Aria Montgomery', rating: 5, comment: 'Absolutely stunned by the tailored Men\'s silk tuxedo. The drape is incredibly fluid and fits like a custom bespoke piece.', role: 'Style Director' },
     { name: 'Julian Vance', rating: 5, comment: 'The Mongolian cashmere coat is soft beyond description. Premium customer service and fast international delivery.', role: 'Refined Taste Blog' },
     { name: 'Scarlett Johansson', rating: 5, comment: 'Magnificent tailoring. The asymmetric blazer is the perfect balance of avant-garde and classic boardroom look.', role: 'Entrepreneur' }
   ];
@@ -75,10 +75,11 @@ export const Home: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const roots = data
-            .filter(c => (c.parentCategory === 'None' || c.parentCategory === 'none' || !c.parentCategory) && (c.status === 'active') && (c.showOnHomepage !== false))
-            .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-          setDbCategories(roots);
+          let menGroups = data.filter(c => c.parentCategory === 'cat-1' && c.status === 'active');
+          if (menGroups.length === 0) {
+            menGroups = data.filter(c => c.status === 'active' && c.parentCategory !== 'None' && c.parentCategory !== 'none');
+          }
+          setDbCategories(menGroups.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
         }
       })
       .catch(err => console.error('Failed to fetch categories:', err));
@@ -181,8 +182,8 @@ export const Home: React.FC = () => {
         <div className="categories-grid">
           {dbCategories.length > 0 ? (
             dbCategories.map(dept => (
-              <Link key={dept.id} to={`/products?gender=${dept.name.toLowerCase()}`} className="category-card">
-                <img src={dept.image || "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800"} alt={dept.name} />
+              <Link key={dept.id} to={`/products?category=${encodeURIComponent(dept.name)}`} className="category-card">
+                <img src={dept.image || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800"} alt={dept.name} />
                 <div className="category-card-overlay">
                   <h3 className="serif-text">{dept.name}</h3>
                   <span>Browse Selection <ArrowRight size={14} /></span>
@@ -191,24 +192,31 @@ export const Home: React.FC = () => {
             ))
           ) : (
             <>
-              <Link to="/products?gender=women" className="category-card">
-                <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800" alt="Women Category" />
+              <Link to="/products?category=Suits%20%26%20Blazers" className="category-card">
+                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Suits and Blazers" />
                 <div className="category-card-overlay">
-                  <h3 className="serif-text">Women's Gowns</h3>
+                  <h3 className="serif-text">Suits & Blazers</h3>
                   <span>Browse Selection <ArrowRight size={14} /></span>
                 </div>
               </Link>
-              <Link to="/products?gender=men" className="category-card">
-                <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800" alt="Men Category" />
+              <Link to="/products?category=Outerwear" className="category-card">
+                <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800" alt="Outerwear" />
                 <div className="category-card-overlay">
-                  <h3 className="serif-text">Men's Wardrobe</h3>
+                  <h3 className="serif-text">Luxury Outerwear</h3>
                   <span>Browse Selection <ArrowRight size={14} /></span>
                 </div>
               </Link>
-              <Link to="/products?gender=kids" className="category-card">
-                <img src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=800" alt="Kids Category" />
+              <Link to="/products?category=Footwear" className="category-card">
+                <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800" alt="Footwear" />
                 <div className="category-card-overlay">
-                  <h3 className="serif-text">Kids Apparel</h3>
+                  <h3 className="serif-text">Handcrafted Footwear</h3>
+                  <span>Browse Selection <ArrowRight size={14} /></span>
+                </div>
+              </Link>
+              <Link to="/products?category=Accessories" className="category-card">
+                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800" alt="Accessories" />
+                <div className="category-card-overlay">
+                  <h3 className="serif-text">Watches & Leather</h3>
                   <span>Browse Selection <ArrowRight size={14} /></span>
                 </div>
               </Link>
